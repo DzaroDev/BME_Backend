@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 
 // constants
-const { userTypes, companyUserTypes } = require('../constants');
+const { userTypes, nonCompanyUserTypes } = require('../constants');
 
 // helpers
 const createError = require('../helpers/createError');
@@ -93,13 +93,19 @@ module.exports = {
     return res.json({ data: user });
   },
   updateUserProfile: async (req, res, next) => {
+    const userType = req.body.profileType;
     let user = req.params.userId;
+    
     user = await userRepository.findUserByQuery({ _id: user });
 
-    if (companyUserTypes.includes(user.userType)) {
+    if (!nonCompanyUserTypes.includes(user.userType)) {
       return next(createError(400, errorMessages.INVALID_USR_PROFILE));
     }
     
+    // update user type
+    user.userType = userType;
+
+    // save user
     user = await userRepository.findUserAndUpdate(user);
 
     return res.json({ statusCode: 200, data: user });

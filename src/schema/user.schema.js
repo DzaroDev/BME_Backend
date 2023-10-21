@@ -8,7 +8,9 @@ module.exports = {
       userId: Joi.string().required(),
     }),
     body: Joi.object({
-      profileType: Joi.number().valid(...userTypes.companyUserTypes).required(),
+      profileType: Joi.number().valid(...userTypes.companyUserTypes).required().messages({
+        'any.only': 'Invalid user profile'
+      }),
     }),
   },
   login: {
