@@ -11,6 +11,7 @@ const schema = new mongoose.Schema({
   category: { type: String },
   firstName: { type: String },
   lastName: { type: String },
+  mobileCode: { type: String },
   mobile: { type: String },
   email: { type: String },
   password: { type: String, select: false },

@@ -6,6 +6,9 @@ const { otpPurpose } = require('../constants');
 const { errorMessages, successMessages } = require('../constants/textVariables');
 
 // helpers
+const createError = require('../helpers/createError');
+
+// helpers
 const generateOtp = require('../helpers/generateOtp');
 const generateRandomPwd = require('../helpers/generateRandomPwd');
 const generateTemplate = require('../helpers/generateTemplate');
@@ -23,7 +26,7 @@ module.exports = {
     
     // check if already verified
     if (otpObj?.isVerified) {
-      return res.status(400).json({ message: errorMessages.MOBILE_ALREADY_VERIFIED });
+      return next(createError(400, errorMessages.MOBILE_ALREADY_VERIFIED));
     }
 
     // generate random OTP code
@@ -42,7 +45,7 @@ module.exports = {
       });
     }
 
-    return res.json({ message: successMessages.MOBILE_OTP_SENT });
+    return res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_SENT });
     // send sms for OTP
   },
   verifyMobileOtp: async (req, res, next) => {
@@ -51,17 +54,17 @@ module.exports = {
     let otpObj = await otpRepository.findOtpForMobileVerification(mobile, otpPurpose.SIGN_UP);
 
     if (!otpObj) {
-      return res.status(400).json({ message: errorMessages.MOBILE_OTP_DOES_NOT_EXIST });
+      return next(createError(400, errorMessages.MOBILE_OTP_DOES_NOT_EXIST));
     }
 
     // check if already verified
     if (otpObj.isVerified) {
-      return res.status(400).json({ message: errorMessages.MOBILE_ALREADY_VERIFIED });
+      return next(createError(400, errorMessages.MOBILE_ALREADY_VERIFIED));
     }
 
     // check if OTP matches
     if (otpObj.code !== code) {
-      return res.status(400).json({ message: errorMessages.OTP_DOES_NOT_MATCH });
+      return next(createError(400, errorMessages.OTP_DOES_NOT_MATCH));
     }
 
     // update OTP in db
@@ -75,7 +78,7 @@ module.exports = {
     };
     await userRepository.saveUser(user);
 
-    res.json({ message: successMessages.MOBILE_OTP_VERIFIED });
+    res.json({  statusCode: 200, message: successMessages.MOBILE_OTP_VERIFIED });
   },
   sendOtpForEmailRegister: async (req, res, next) => {
     const email = req.body.email;
@@ -84,7 +87,7 @@ module.exports = {
     
     // check if already verified
     if (otpObj?.isVerified) {
-      return res.status(400).json({ message: errorMessages.EMAIL_ALREADY_VERIFIED });
+      return next(createError(400, errorMessages.EMAIL_ALREADY_VERIFIED));
     }
 
     // generate random OTP code
@@ -125,17 +128,17 @@ module.exports = {
     let otpObj = await otpRepository.findOtpForMobileVerification(email, otpPurpose.SIGN_UP);
 
     if (!otpObj) {
-      return res.status(400).json({ message: errorMessages.EMAIL_OTP_DOES_NOT_EXIST });
+      return next(createError(400, errorMessages.EMAIL_OTP_DOES_NOT_EXIST));
     }
 
     // check if already verified
     if (otpObj.isVerified) {
-      return res.status(400).json({ message: errorMessages.EMAIL_ALREADY_VERIFIED });
+      return next(createError(400, errorMessages.EMAIL_ALREADY_VERIFIED));
     }
 
     // check if OTP matches
     if (otpObj.code !== code) {
-      return res.status(400).json({ message: errorMessages.OTP_DOES_NOT_MATCH });
+      return next(createError(400, errorMessages.OTP_DOES_NOT_MATCH));
     }
 
     // update OTP in db
@@ -149,6 +152,6 @@ module.exports = {
     };
     await userRepository.saveUser(user);
 
-    res.json({ message: successMessages.EMAIL_OTP_VERIFIED });
+    res.json({ statusCode: 200, message: successMessages.EMAIL_OTP_VERIFIED });
   },
 }

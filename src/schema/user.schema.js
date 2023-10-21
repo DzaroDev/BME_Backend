@@ -3,6 +3,14 @@ const { Joi } = require('express-validation');
 const userTypes = require('../constants');
 
 module.exports = {
+  userProfile: {
+    params: Joi.object({
+      userId: Joi.string().required(),
+    }),
+    body: Joi.object({
+      profileType: Joi.number().valid(...userTypes.companyUserTypes).required(),
+    }),
+  },
   login: {
     body: Joi.object().keys({
       password: Joi.string()
@@ -61,6 +69,7 @@ module.exports = {
         .max(200)
         .required(),
       lastName: Joi.string().allow('').optional(),
+      mobileCode: Joi.string().allow(null),
       mobile: Joi.string()
         .allow('')
         .optional()

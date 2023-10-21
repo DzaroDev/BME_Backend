@@ -3,14 +3,13 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const compress = require('compression');
-const methodOverride = require('method-override');
 const cors = require('cors');
-const httpStatus = require('http-status');
 const { ValidationError } = require('express-validation');
 const helmet = require('helmet');
 const routes = require('./routes');
 const config = require('./config');
 const APIError = require('./helpers/APIError');
+const createError = require('./helpers/createError');
 
 // const crypto = require('crypto').randomBytes(6).toString('hex');
 // console.log({ crypto })
@@ -44,7 +43,7 @@ app.use('/api', routes);
 // if error is not an instanceOf APIError, convert it.
 app.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
-    const apiError = new APIError('Invalid token', err.status);
+    const apiError = createError(err.status, 'Invalid token was provided');
     return next(apiError);
   }
   if (err instanceof ValidationError) {
@@ -63,7 +62,7 @@ app.use((err, req, res, next) => {
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new APIError('API Not Found', httpStatus.NOT_FOUND);
+  const err = createError(404);
   return next(err);
 });
 
@@ -71,7 +70,8 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   res.status(err.status).json({
     // eslint-disable-line implicit-arrow-linebreak
-    message: err.isPublic ? err.message : httpStatus[err.status],
+    statusCode: err.status,
+    message: err.message,
     stack: config.env === 'development' ? err.stack : {},
   })
 });

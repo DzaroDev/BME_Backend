@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    return await userController.getUserByToken(req, res);
+    return await userController.getUserByToken(req, res, next);
   } catch (error) {
     next(error);
   }
@@ -21,7 +21,7 @@ router.get('/', async (req, res, next) => {
 
 router.put('/', validateJoiSchema(userSchema.updateUser), async (req, res, next) => {
   try {
-    return await userController.updateUser(req, res);
+    return await userController.updateUser(req, res, next);
   } catch (error) {
     next(error);
   }
@@ -29,7 +29,15 @@ router.put('/', validateJoiSchema(userSchema.updateUser), async (req, res, next)
 
 router.post('/create', validateJoiSchema(userSchema.user), async (req, res, next) => {
   try {
-    return await userController.createUser(req, res);
+    return await userController.createUser(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/:userId/profile', validateJoiSchema(userSchema.userProfile), async (req, res, next) => {
+  try {
+    return await userController.updateUserProfile(req, res, next);
   } catch (error) {
     next(error);
   }

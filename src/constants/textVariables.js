@@ -11,7 +11,8 @@ const errorMessages = {
   INVALID_USER_PWD: 'Incorrect password.',
   USER_NOT_ACTIVE: 'Account de-activated. Please contact Admin.',
   USER_NOT_VERIFIED: 'User is not verified.',
-  INVALID_TOKEN: 'Invalid token.',
+  INVALID_TOKEN: 'Invalid token was provided',
+  INVALID_USR_PROFILE: 'Invalid user profile',
 }
 
 const successMessages = {

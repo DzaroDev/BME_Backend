@@ -20,6 +20,9 @@ const userRepository = require('../repositories/user.repository');
 // schemas
 const userSchema = require('../schema/user.schema');
 
+// helpers
+const createError = require('../helpers/createError');
+
 // express router
 const router = express.Router();
 
@@ -42,19 +45,19 @@ router.post('/token', validateJoiSchema(userSchema.login), async (req, res, next
     user = await userRepository.findUserByQuery(query);
 
     if (!user) {
-      return res.status(400).json({ message: errorMessages.USER_DOES_NOT_EXIST });
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
     }
 
     const isPwdValid = await user.comparePassword(password);
 
     if (!isPwdValid) {
-      return res.status(400).json({ message: errorMessages.INVALID_USER_PWD });
+      return next(createError(400, errorMessages.INVALID_USER_PWD));
     }
 
     // create/sign token by user id
     const token = jwt.sign({ user: user.id }, config.jwtSecret);
     
-    res.json({ data: { user, token } });
+    res.json({ statusCode: 200, data: { user, token } });
   } catch (error) {
     next(error);
   }
@@ -68,7 +71,7 @@ router.post('/send-otp', validateJoiSchema(userSchema.otp), async (req, res, nex
     if (isString(req.body.email)) {
       return authController.sendOtpForEmailRegister(req, res, next);
     }
-    return res.json({ message: errorMessages.SOMETHING_WENT_WRONG });
+    return next(createError(500, errorMessages.SOMETHING_WENT_WRONG));
   } catch (error) {
     next(error);
   }
