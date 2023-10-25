@@ -14,6 +14,8 @@ const errorMessages = {
   INVALID_TOKEN: 'Invalid token was provided',
   INVALID_USR_PROFILE: 'Invalid user profile',
   COMPANY_EXIST_WITH_REG_NUM: 'Company already exist with registration number',
+  COMPANY_NOT_EXIST_WITH_ID: 'Company does not exist',
+  SERVICE_NOT_EXIST_WITH_ID: 'Service does not exist',
 }
 
 const successMessages = {

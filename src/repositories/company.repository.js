@@ -15,12 +15,8 @@ module.exports = {
     const company = await companyModel.findOne({ registrationId });
     return company;
   },
-  findCompanyByMobile: async (mobile) => {
-    const company = await companyModel.findOne({ mobile });
-    return company;
-  },
-  findCompanyAndUpdate: async (updateCompany) => {
-    const output = await companyModel.findByIdAndUpdate(updateCompany.id, updateCompany, { new: true });
+  findCompanyById: async (companyId) => {
+    const output = await companyModel.findById(companyId);
     return output;
   },
 }

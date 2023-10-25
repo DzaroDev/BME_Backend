@@ -9,6 +9,8 @@ const schema = new mongoose.Schema({
   category: { type: String },
   price: { type: String },
   image: { type: String },
+  isActive: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'company' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
 }, {

@@ -32,6 +32,6 @@ module.exports = {
       company.members = companyMembers;
     }
 
-    res.json({ statusCode: 200, data: company });
+    return res.json({ statusCode: 200, data: company });
   },
 }
