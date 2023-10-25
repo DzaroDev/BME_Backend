@@ -3,9 +3,10 @@ const mongoose = require('mongoose');
 const schema = new mongoose.Schema({
   name: { type: String },
   title: { type: String },
-  bio: { type: String },
+  description: { type: String },
   socialLinks: { type: Array },
-  isTCAgreed: { type: Boolean, default: false },
+  isActive: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'company' },
 }, {
   toObject: { useProjection: true },
@@ -14,4 +15,4 @@ const schema = new mongoose.Schema({
   versionKey: false,
 });
 
-module.exports = mongoose.model('team', schema);
+module.exports = mongoose.model('member', schema);

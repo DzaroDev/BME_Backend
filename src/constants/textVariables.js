@@ -13,6 +13,7 @@ const errorMessages = {
   USER_NOT_VERIFIED: 'User is not verified.',
   INVALID_TOKEN: 'Invalid token was provided',
   INVALID_USR_PROFILE: 'Invalid user profile',
+  COMPANY_EXIST_WITH_REG_NUM: 'Company already exist with registration number',
 }
 
 const successMessages = {

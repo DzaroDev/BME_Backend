@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const schema = new mongoose.Schema({
   name: { type: String },
-  registrationNumber: { type: String },
+  registrationId: { type: String },
   address1: { type: String },
   address2: { type: String },
   city: { type: String },
@@ -15,6 +15,8 @@ const schema = new mongoose.Schema({
   brochure: { type: String },
   biomedicalExpertise: { type: String },
   images: { type: Array },
+  isActive: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
 }, {
   toObject: { useProjection: true },
