@@ -92,6 +92,9 @@ module.exports = {
       company: Joi.string().optional(),
       institute: Joi.string().optional(),
       website: Joi.string().optional(),
+      preferences: Joi.object({
+        pushNotification: Joi.boolean().default(true),
+      }),
     })
   },
   updateUser: {
@@ -102,6 +105,9 @@ module.exports = {
       company: Joi.string(),
       institute: Joi.string(),
       website: Joi.string(),
+      preferences: Joi.object({
+        pushNotification: Joi.boolean().default(true),
+      }),
     }).min(1).message('No field has been provided.'),
   },
 }

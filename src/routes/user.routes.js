@@ -43,4 +43,12 @@ router.post('/:userId/profile', validateJoiSchema(userSchema.userProfile), async
   }
 });
 
+router.get('/all', async (req, res, next) => {
+  try {
+    return await userController.listAllUsers(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

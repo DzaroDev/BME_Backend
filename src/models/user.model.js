@@ -19,6 +19,9 @@ const schema = new mongoose.Schema({
   company: { type: String },
   institute: { type: String },
   website: { type: String },
+  preferences: {
+    pushNotification: { type: Boolean, default: true },
+  },
   isActive: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },

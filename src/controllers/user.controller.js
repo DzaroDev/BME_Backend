@@ -87,7 +87,7 @@ module.exports = {
     if (!user?.id) {
       return next(createError(400, errorMessages.INVALID_TOKEN));
     }
-    
+
     user = await userRepository.findUserAndUpdate(user);
 
     return res.json({ data: user });
@@ -109,5 +109,9 @@ module.exports = {
     user = await userRepository.findUserAndUpdate(user);
 
     return res.json({ statusCode: 200, data: user });
+  },
+  listAllUsers: async (req, res, next) => {
+    const users = await userRepository.findAllUsers();
+    return res.json({ statusCode: 200, data: users });
   },
 }

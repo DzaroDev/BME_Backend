@@ -17,6 +17,7 @@ const errorMessages = {
   COMPANY_NOT_EXIST_WITH_ID: 'Company does not exist',
   SERVICE_NOT_EXIST_WITH_ID: 'Service does not exist',
   BLOG_DOES_NOT_EXIST: 'Blog does not exist',
+  NOTIFICATION_DOES_NOT_EXIST: 'Notification does not exist',
 }
 
 const successMessages = {
@@ -25,6 +26,8 @@ const successMessages = {
   MOBILE_OTP_VERIFIED: 'Mobile verification successful.',
   EMAIL_OTP_VERIFIED: 'Email verification successful.',
   BLOG_DELETED: 'Blog deleted successfully',
+  NOTIFICATIONS_SAVED: 'Notifications saved successfully',
+  NOTIFICATIONS_UPDATED: 'Notifications updated successfully',
 }
 
 module.exports = {
