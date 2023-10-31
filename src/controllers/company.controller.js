@@ -33,7 +33,7 @@ module.exports = {
     }
 
     // assign user
-    inputBody.user = authUser;
+    inputBody.user = authUser.id;
 
     // save new company
     company = await companyRepository.saveCompany(inputBody);

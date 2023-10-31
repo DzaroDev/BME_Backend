@@ -8,7 +8,7 @@ const errorMessages = {
   MOBILE_NOT_VERIFIED: 'Mobile is not verified.',
   EMAIL_NOT_VERIFIED: 'Email is not verified.',
   USER_DOES_NOT_EXIST: 'User does not exist.',
-  USER_NOT_ALLOWED: 'User not allowed.',
+  USER_NOT_ALLOWED: 'User is not allowed.',
   INVALID_USER_PWD: 'Incorrect password.',
   USER_NOT_ACTIVE: 'Account de-activated. Please contact Admin.',
   USER_NOT_VERIFIED: 'User is not verified.',
