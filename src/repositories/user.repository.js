@@ -58,7 +58,6 @@ module.exports = {
     return output;
   },
   findUserAndUpdate: async (updateUser) => {
-    console.log('updateUser', updateUser)
     const output = await userModel.findByIdAndUpdate(updateUser.id, updateUser, { new: true });
     return output;
   },

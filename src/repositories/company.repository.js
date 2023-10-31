@@ -29,4 +29,8 @@ module.exports = {
     }
     return output;
   },
+  updateCompany: async (companyId, updateQuery) => {
+    const output = await companyModel.findByIdAndUpdate(companyId, updateQuery, { new: true });
+    return output;
+  },
 }
