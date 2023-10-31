@@ -1,8 +1,9 @@
+const { blogStatus } = require('../constants');
 const blogModel = require('../models/blog.model');
 
 module.exports = {
-  saveblog: async (blog) => {
-    blog.isActive = true; // active by default
+  saveBlog: async (blog) => {
+    blog.status = blogStatus.INCOMPLETE;
     blog = new blogModel(blog);
     return await blog.save();
   },
@@ -16,6 +17,20 @@ module.exports = {
   },
   findAllBlogsByUser: async (user) => {
     const output = await blogModel.find({ user, isDeleted: false });
+    return output;
+  },
+  findAllBlogs: async (query, pagination) => {
+    query = { ...query, isDeleted: false };
+    let output = null;
+    if (pagination) {
+      const { pageNo, pageSize, sortBy, sortOrder } = pagination;
+      output = await blogModel.find(query)
+        .limit(pageSize)
+        .skip((pageNo - 1) * pageSize)
+        .sort({ [sortBy]: sortOrder });
+    } else {
+      output = await blogModel.find(query);
+    }
     return output;
   },
 }

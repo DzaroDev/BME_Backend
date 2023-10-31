@@ -1,4 +1,6 @@
+const { values } = require('lodash');
 const mongoose = require('mongoose');
+const { blogStatus } = require('../constants');
 
 const schema = new mongoose.Schema({
   username: { type: String },
@@ -6,9 +8,10 @@ const schema = new mongoose.Schema({
   content: { type: String },
   conclusion: { type: String },
   images: { type: Array },
-  isActive: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  status: { type: Number, enums: values(blogStatus) },
+  publishedAt: { type: Date },
 }, {
   toObject: { useProjection: true },
   toJSON: { virtuals: true, getters: true, useProjection: true },

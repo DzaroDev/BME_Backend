@@ -29,9 +29,17 @@ const otpPurpose = {
   FORGOT_PWD: 'Forgot Password',
 }
 
+const blogStatus = {
+  INCOMPLETE: 1,
+  APPROVED: 2,
+  PUBLISHED: 3,
+  UNPUBLISHED: 4,
+}
+
 module.exports = {
   userTypes,
   companyUserTypes,
   nonCompanyUserTypes,
   otpPurpose,
+  blogStatus,
 }
