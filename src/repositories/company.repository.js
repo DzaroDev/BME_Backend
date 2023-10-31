@@ -11,12 +11,22 @@ module.exports = {
     const output = await companyModel.findOne(query).exec();
     return output;
   },
-  findCompanyByRegistrationNum: async (registrationId) => {
-    const company = await companyModel.findOne({ registrationId });
-    return company;
-  },
   findCompanyById: async (companyId) => {
     const output = await companyModel.findById(companyId);
+    return output;
+  },
+  findAllCompanies: async (query, pagination) => {
+    query = { ...query, isDeleted: false, isActive: true };
+    let output = null;
+    if (pagination) {
+      const { pageNo, pageSize, sortBy, sortOrder } = pagination;
+      output = await companyModel.find(query)
+        .limit(pageSize)
+        .skip((pageNo - 1) * pageSize)
+        .sort({ [sortBy]: sortOrder });
+    } else {
+      output = await companyModel.find(query);
+    }
     return output;
   },
 }
