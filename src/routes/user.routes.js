@@ -11,6 +11,17 @@ const userController = require('../controllers/user.controller');
 
 const router = express.Router();
 
+router.get('/all', async (req, res, next) => {
+  try {
+    const { value, error } = userSchema.listUsers.query.validate(req.query);
+    if (error) return next(error);
+    req.query = value;
+    return await userController.listAllUsers(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/:userId', async (req, res, next) => {
   try {
     return await userController.getUserByToken(req, res, next);
@@ -46,17 +57,6 @@ router.post('/:userId/profile', validateJoiSchema(userSchema.userProfile), async
 router.post('/:userId/admin-profile', validateJoiSchema(userSchema.updateAdminUser), async (req, res, next) => {
   try {
     return await userController.updateAdminUserProfile(req, res, next);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get('/all', async (req, res, next) => {
-  try {
-    const { value, error } = userSchema.listUsers.query.validate(req.query);
-    if (error) return next(error);
-    req.query = value;
-    return await userController.listAllUsers(req, res, next);
   } catch (error) {
     next(error);
   }
