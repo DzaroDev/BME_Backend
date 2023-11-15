@@ -1,4 +1,4 @@
-const { isString, isEmpty } = require('lodash');
+const { isString, isNil } = require('lodash');
 const jwt = require('jsonwebtoken');
 
 // config
@@ -54,8 +54,7 @@ module.exports = {
   createUser: async (req, res, next) => {
     const inputBody = req.body;
     let userObj = null;
-
-    if (isEmpty(inputBody.userType)) {
+    if (isNil(inputBody.userType)) {
       return next(createError(400, errorMessages.SOMETHING_WENT_WRONG));
     }
 
@@ -155,5 +154,17 @@ module.exports = {
 
     const users = await userRepository.findAllUsers(query);
     return res.json({ statusCode: 200, data: users });
+  },
+  resetAdminUserPassword: async (req, res, next) => {
+    const { password } = req.body;
+    let user = req.params.userId;
+    user = await userRepository.findUserByQuery({ _id: user });
+    if (!user || !adminUserTypes.includes(user.userType)) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+    // update user password
+    user.password = password;
+    user.save()
+    return res.json({ statusCode: 200, data: user });
   },
 }

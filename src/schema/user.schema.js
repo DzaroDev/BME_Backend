@@ -8,14 +8,13 @@ const adminUserSchema = Joi.object({
     .min(3)
     .max(200)
     .required(),
-  lastName: Joi.string().allow(null),
+  lastName: Joi.string().allow(null, ''),
   email: Joi.string().email({ tlds: { allow: false } }).required(),
   password: Joi.string()
     .min(8)
-    .max(25)
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
     .required()
-    .messages({'string.pattern.base': 'Password must have minimum 8 characters including capital and lowercase letters and special characters.'}),
+    .messages({'string.pattern.base': 'Password must be atleast 8 characters including uppercase,lowercase and special characters.'}),
 })
 
 const userSchema = Joi.object({
@@ -45,10 +44,9 @@ const userSchema = Joi.object({
   }),
   password: Joi.string()
     .min(8)
-    .max(25)
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
     .required()
-    .messages({'string.pattern.base': 'Password must have minimum 8 characters including capital and lowercase letters and special characters.'}),
+    .messages({'string.pattern.base': 'Password must be atleast 8 characters including uppercase,lowercase and special characters.'}),
   city: Joi.string().required(),
   company: Joi.string().allow(null),
   institute: Joi.string().allow(null),
@@ -76,10 +74,9 @@ module.exports = {
     body: Joi.object().keys({
       password: Joi.string()
         .min(8)
-        .max(25)
         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
         .required()
-        .messages({'string.pattern.base': 'Password must have minimum 8 characters including capital and lowercase letters and special characters.'}),
+        .messages({'string.pattern.base': 'Password must be atleast 8 characters including uppercase,lowercase and special characters.'}),
       mobile: Joi.string()
         .empty(null)
         .regex(/^[0-9]{10}$/)
@@ -145,5 +142,14 @@ module.exports = {
     query: Joi.object({
       onlyAdmin: Joi.boolean().default(false)
     }),
+  },
+  resetAdminPassword: {
+    body: Joi.object().keys({
+      password: Joi.string()
+        .min(8)
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+        .required()
+        .messages({'string.pattern.base': 'Password must be atleast 8 characters including uppercase,lowercase and special characters.'}),
+    }).min(1).message('No field has been provided.'),
   },
 }

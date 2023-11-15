@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const { isString } = require('lodash');
 
 // constants
 const SALT_WORK_FACTOR = 10;
@@ -64,8 +63,7 @@ schema.methods.comparePassword = async function(inputPassword, cb) {
 
 // schema virtuals
 schema.virtual('fullName').get(function() {
-  if (!isString(this.lastName)) return this.firstName;
-  if (this.lastName) return this.firstName + ' ' + this.lastName;
+  return !this.lastName ? this.firstName : `${this.firstName} ${this.lastName}`
 });
 
 module.exports = mongoose.model('user', schema);

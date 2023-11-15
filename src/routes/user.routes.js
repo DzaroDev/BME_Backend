@@ -62,4 +62,12 @@ router.post('/:userId/admin-profile', validateJoiSchema(userSchema.updateAdminUs
   }
 });
 
+router.post('/admin/:userId/reset-password', validateJoiSchema(userSchema.resetAdminPassword), async (req, res, next) => {
+  try {
+    return await userController.resetAdminUserPassword(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
