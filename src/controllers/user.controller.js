@@ -29,10 +29,10 @@ module.exports = {
     return user;
   },
   getUserByToken: async (req, res, next) => {
-    let user = req?.auth?.user;
+    let user = req.params?.userId || req?.auth?.user;
 
     if (!user) {
-      return next(createError(400, errorMessages.INVALID_TOKEN));
+      return next(createError(400, errorMessages.SOMETHING_WENT_WRONG));
     }
 
     user = await userRepository.findUserByQuery({ _id: user });

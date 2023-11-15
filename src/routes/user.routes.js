@@ -11,7 +11,7 @@ const userController = require('../controllers/user.controller');
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/:userId', async (req, res, next) => {
   try {
     return await userController.getUserByToken(req, res, next);
   } catch (error) {
