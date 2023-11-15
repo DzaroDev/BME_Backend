@@ -1,6 +1,65 @@
-const { Joi } = require('express-validation');
+const { Joi } = require('express-validation')
 
-const userTypes = require('../constants');
+const userTypes = require('../constants')
+
+const adminUserSchema = Joi.object({
+  userType: Joi.number().valid(...userTypes.adminUserTypes).messages({'any.invalid': 'Invalid user type provided!'}),
+  firstName: Joi.string()
+    .min(3)
+    .max(200)
+    .required(),
+  lastName: Joi.string().allow(null),
+  email: Joi.string().email({ tlds: { allow: false } }).required(),
+  password: Joi.string()
+    .min(8)
+    .max(25)
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    .required()
+    .messages({'string.pattern.base': 'Password must have minimum 8 characters including capital and lowercase letters and special characters.'}),
+})
+
+const userSchema = Joi.object({
+  userType: Joi.number()
+    .valid(...userTypes.companyUserTypes, ...userTypes.nonCompanyUserTypes)
+    .messages({'any.invalid': 'Invalid user type provided!'}),
+  category: Joi.string()
+    .when('userType', {
+      is: Joi.number().valid(...userTypes.companyUserTypes),
+      then: Joi.string().required(),
+      otherwise: Joi.forbidden(),
+    }),
+  firstName: Joi.string()
+    .min(3)
+    .max(200)
+    .required(),
+  lastName: Joi.string().allow(null),
+  mobileCode: Joi.string().allow(null),
+  mobile: Joi.string()
+    .allow(null)
+    .regex(/^[0-9]{10}$/)
+    .messages({'string.pattern.base': 'Mobile must have 10-digits.'}),
+  email: Joi.when('mobile', {
+    is: Joi.exist(),
+    then: Joi.forbidden(),
+    otherwise: Joi.string().email({ tlds: { allow: false } }).required(),
+  }),
+  password: Joi.string()
+    .min(8)
+    .max(25)
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    .required()
+    .messages({'string.pattern.base': 'Password must have minimum 8 characters including capital and lowercase letters and special characters.'}),
+  city: Joi.string().required(),
+  company: Joi.string().allow(null),
+  institute: Joi.string().allow(null),
+  website: Joi.string().allow(null),
+  preferences: Joi.object({
+    pushNotification: Joi.boolean().default(true),
+    sms: Joi.boolean().default(true),
+    email: Joi.boolean().default(true),
+    autoRenewSubscription: Joi.boolean().default(false),
+  }),
+})
 
 module.exports = {
   userProfile: {
@@ -56,46 +115,12 @@ module.exports = {
     }).or('mobile', 'email'),
   },
   user: {
-    body: Joi.object({
-      userType: Joi.number()
-        .valid(...userTypes.companyUserTypes, ...userTypes.nonCompanyUserTypes)
-        .messages({'any.invalid': 'Invalid user type provided!'}),
-      category: Joi.string()
-        .when('userType', {
-          is: Joi.number().valid(...userTypes.companyUserTypes),
-          then: Joi.string().required(),
-          otherwise: Joi.forbidden(),
-        }),
-      firstName: Joi.string()
-        .min(3)
-        .max(200)
-        .required(),
-      lastName: Joi.string().allow('').optional(),
-      mobileCode: Joi.string().allow(null),
-      mobile: Joi.string()
-        .allow('')
-        .optional()
-        .regex(/^[0-9]{10}$/)
-        .messages({'string.pattern.base': 'Mobile must have 10-digits.'}),
-      email: Joi.when('mobile', {
-        is: Joi.exist(),
-        then: Joi.forbidden(),
-        otherwise: Joi.string().email({ tlds: { allow: false } }).required(),
-      }),
-      password: Joi.string()
-        .min(8)
-        .max(25)
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-        .required()
-        .messages({'string.pattern.base': 'Password must have minimum 8 characters including capital and lowercase letters and special characters.'}),
-      city: Joi.string().required(),
-      company: Joi.string().optional(),
-      institute: Joi.string().optional(),
-      website: Joi.string().optional(),
-      preferences: Joi.object({
-        pushNotification: Joi.boolean().default(true),
-      }),
-    })
+    body: Joi.alternatives().conditional(
+      Joi.object({ userType: Joi.number().valid(...userTypes.adminUserTypes) }).unknown(), {
+        then: adminUserSchema,
+        otherwise: userSchema,
+      }
+    )
   },
   updateUser: {
     body: Joi.object().keys({
@@ -109,5 +134,16 @@ module.exports = {
         pushNotification: Joi.boolean().default(true),
       }),
     }).min(1).message('No field has been provided.'),
+  },
+  updateAdminUser: {
+    body: Joi.object().keys({
+      firstName: Joi.string().min(3).max(200),
+      lastName: Joi.string().allow(null),
+    }).min(1).message('No field has been provided.'),
+  },
+  listUsers: {
+    query: Joi.object({
+      onlyAdmin: Joi.boolean().default(false)
+    }),
   },
 }

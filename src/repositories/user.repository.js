@@ -1,4 +1,4 @@
-const { isString } = require('lodash');
+const { isString, isEmpty } = require('lodash');
 
 // config
 const config = require('../config');
@@ -62,7 +62,11 @@ module.exports = {
     return output;
   },
   findAllUsers: async (query) => {
-    const output = await userModel.find({ ...query });
+    query = {
+      userType: !isEmpty(query?.userType) ? query?.userType : { $ne: userTypes.ADMIN, },
+      ...query,
+    }
+    const output = await userModel.find(query);
     return output
   }
 }

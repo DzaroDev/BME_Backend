@@ -8,6 +8,7 @@ const userTypes = {
   BME_SENIOR: 7, // non-company user
   BME_STUDENT: 8, // non-company user
   OTHER: 9, // non-company user
+  SUB_ADMIN: 10, // sub admin user
 };
 
 const companyUserTypes = [
@@ -24,6 +25,10 @@ const nonCompanyUserTypes = [
   userTypes.OTHER,
 ];
 
+const adminUserTypes = [
+  userTypes.SUB_ADMIN,
+];
+
 const otpPurpose = {
   SIGN_UP: 'Sign Up',
   FORGOT_PWD: 'Forgot Password',
@@ -36,10 +41,19 @@ const blogStatus = {
   UNPUBLISHED: 4,
 }
 
+const subscriptionPlanPeriods = {
+  MONTHLY: 1,
+  QUARTERLY: 3,
+  HALF_YEARLY: 6,
+  YEARLY: 12,
+}
+
 module.exports = {
   userTypes,
   companyUserTypes,
   nonCompanyUserTypes,
   otpPurpose,
   blogStatus,
+  adminUserTypes,
+  subscriptionPlanPeriods,
 }

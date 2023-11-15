@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
-const { values } = require('lodash');
 const bcrypt = require('bcrypt');
+const { isString } = require('lodash');
 
 // constants
 const SALT_WORK_FACTOR = 10;
-const { userTypes } = require('../constants');
 
 const schema = new mongoose.Schema({
-  userType: { type: Number, enum: values(userTypes) },
+  userType: { type: Number },
   category: { type: String },
   firstName: { type: String },
   lastName: { type: String },
@@ -20,8 +19,14 @@ const schema = new mongoose.Schema({
   institute: { type: String },
   website: { type: String },
   preferences: {
-    pushNotification: { type: Boolean, default: true },
+    pushNotification: { type: Boolean },
+    sms: { type: Boolean },
+    email: { type: Boolean },
+    autoRenewSubscription: { type: Boolean },
   },
+  subscription: { type: mongoose.Schema.Types.ObjectId, ref: 'subscription' },
+  subscriptionStartedAt: { type: Date },
+  subscriptionExpiredAt: { type: Date },
   isActive: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
@@ -33,7 +38,7 @@ const schema = new mongoose.Schema({
 });
 
 // schema indexes
-schema.index({ email: 1, phone: 1, userType: 1 });
+schema.index({ email: 1, mobile: 1, userType: 1 });
 
 // pre hooks
 schema.pre('save', function(next) {
@@ -59,7 +64,7 @@ schema.methods.comparePassword = async function(inputPassword, cb) {
 
 // schema virtuals
 schema.virtual('fullName').get(function() {
-  if (!this.lastName) return this.firstName;
+  if (!isString(this.lastName)) return this.firstName;
   if (this.lastName) return this.firstName + ' ' + this.lastName;
 });
 

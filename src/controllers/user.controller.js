@@ -1,11 +1,11 @@
-const { isString } = require('lodash');
+const { isString, isEmpty } = require('lodash');
 const jwt = require('jsonwebtoken');
 
 // config
 const config = require('../config');
 
 // constants
-const { userTypes, nonCompanyUserTypes } = require('../constants');
+const { userTypes, nonCompanyUserTypes, adminUserTypes, companyUserTypes } = require('../constants');
 
 // helpers
 const createError = require('../helpers/createError');
@@ -19,6 +19,7 @@ module.exports = {
     let user = await userRepository.findAdminUser();
     if (user) return false;
     user = await userRepository.saveUser({
+      firstName: 'Admin',
       email: config.adminUser.name,
       isActive: true,
       isVerified: true,
@@ -51,12 +52,16 @@ module.exports = {
     return res.json({ statusCode: 200, data: user });
   },
   createUser: async (req, res, next) => {
-    const userInputObj = req.body;
+    const inputBody = req.body;
     let userObj = null;
-    
+
+    if (isEmpty(inputBody.userType)) {
+      return next(createError(400, errorMessages.SOMETHING_WENT_WRONG));
+    }
+
     // check if user with mobile
-    if (isString(userInputObj.mobile)) {
-      userObj = await userRepository.findOneByMobile(userInputObj.mobile);
+    if (isString(inputBody.mobile)) {
+      userObj = await userRepository.findOneByMobile(inputBody.mobile);
       if (!userObj) {
         return next(createError(400, errorMessages.MOBILE_NOT_VERIFIED));
       }
@@ -65,8 +70,19 @@ module.exports = {
       }
     }
     // check if user with email
-    if (isString(userInputObj.email)) {
-      userObj = await userRepository.findOneByEmail(userInputObj.email);
+    if (isString(inputBody.email)) {
+      userObj = await userRepository.findOneByEmail(inputBody.email);
+      
+      // check if admin user type
+      if (adminUserTypes.includes(inputBody.userType)) {
+        if (userObj) {
+          return next(createError(400, errorMessages.USER_ALREADY_EXIST));
+        }
+        // save new user
+        userObj = await userRepository.createVerifiedUser(inputBody);
+        return res.json({ statusCode: 200, data: userObj });
+      }
+
       if (!userObj) {
         return next(createError(400, errorMessages.EMAIL_NOT_VERIFIED));
       }
@@ -76,7 +92,7 @@ module.exports = {
     }
 
     // save new user
-    userObj = await userRepository.createVerifiedUser(userInputObj);
+    userObj = await userRepository.createVerifiedUser(inputBody);
 
     return res.json({ statusCode: 200, data: userObj });
   },
@@ -110,8 +126,34 @@ module.exports = {
 
     return res.json({ statusCode: 200, data: user });
   },
+  updateAdminUserProfile: async (req, res, next) => {
+    const inputBody = req.body;
+    let user = req.params.userId;
+    user = await userRepository.findUserByQuery({ _id: user });
+    if (!user || !adminUserTypes.includes(user.userType)) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+    // update user
+    if (isString(inputBody.firstName)) user.firstName = inputBody.firstName;
+    if (isString(inputBody.lastName)) user.lastName = inputBody.lastName;
+    // save user
+    user = await userRepository.findUserAndUpdate(user);
+    return res.json({ statusCode: 200, data: user });
+  },
   listAllUsers: async (req, res, next) => {
-    const users = await userRepository.findAllUsers();
+    const query = {
+      userType: {
+        $in: [ ...companyUserTypes, ...nonCompanyUserTypes ]
+      }
+    }
+
+    if (req.query.onlyAdmin) {
+      query.userType = {
+        $in: [ ...adminUserTypes ]
+      }
+    }
+
+    const users = await userRepository.findAllUsers(query);
     return res.json({ statusCode: 200, data: users });
   },
 }
