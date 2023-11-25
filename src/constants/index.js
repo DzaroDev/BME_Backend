@@ -41,11 +41,30 @@ const blogStatus = {
   UNPUBLISHED: 4,
 }
 
+const blogStatusLabels = {
+  1: 'incomplete',
+  2: 'approved',
+  3: 'published',
+  4: 'unpublished',
+}
+
 const subscriptionPlanPeriods = {
   MONTHLY: 1,
   QUARTERLY: 3,
   HALF_YEARLY: 6,
   YEARLY: 12,
+}
+
+const sortOrder = {
+  ASC_ORDER: 1,
+  DESC_ORDER: -1,
+}
+
+const pageConfigs = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_PAGE_SIZE: 10,
+  DEFAULT_SORT_ORDER: 1,
+  DEFAULT_SORT_KEY: 'updatedAt',
 }
 
 module.exports = {
@@ -54,6 +73,9 @@ module.exports = {
   nonCompanyUserTypes,
   otpPurpose,
   blogStatus,
+  blogStatusLabels,
   adminUserTypes,
   subscriptionPlanPeriods,
+  sortOrder,
+  pageConfigs,
 }

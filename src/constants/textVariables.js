@@ -21,6 +21,8 @@ const errorMessages = {
   SERVICE_NOT_EXIST_WITH_ID: 'Service does not exist',
   BLOG_DOES_NOT_EXIST: 'Blog does not exist',
   NOTIFICATION_DOES_NOT_EXIST: 'Notification does not exist',
+  INVALID_STATUS: 'Invalid status was provided',
+  USER_NOT_AUTHORIZED: 'User not authorized',
 }
 
 const successMessages = {

@@ -1,36 +1,41 @@
 const { Joi } = require('express-validation');
 const { values } = require('lodash');
-const { blogStatus } = require('../constants');
+const { blogStatus, sortOrder } = require('../constants');
 
 const blogStatusVals = values(blogStatus);
+const sortOrdersVals = values(sortOrder);
 
 const schema = {
   blog: {
     body: Joi.object({
-      title: Joi.string().required(),
-      content: Joi.string().required(),
-      conclusion: Joi.string().allow(null),
+      titleText: Joi.string().required(),
+      mainText: Joi.string().required(),
+      summaryText: Joi.string().required(),
+      category: Joi.string().required(),
+      status: Joi.number().positive().integer().required().valid(...blogStatusVals),
     }),
   },
   updateBlog: {
     body: Joi.object({
-      title: Joi.string().allow(null),
-      content: Joi.string().allow(null),
-      conclusion: Joi.string().allow(null),
+      titleText: Joi.string(),
+      mainText: Joi.string(),
+      summaryText: Joi.string(),
+      category: Joi.string(),
     }),
   },
-  statusUpdateBlog: {
+  updateBlogStatus: {
     body: Joi.object({
-      status: Joi.number().required().allow(...blogStatusVals),
+      blogId: Joi.string().required(),
+      status: Joi.number().positive().integer().required().valid(...blogStatusVals),
     }),
   },
   listBlogs: {
     query: Joi.object().keys({
-      pageNo: Joi.number().positive().integer().default(1),
-      pageSize: Joi.number().positive().integer().default(10),
-      status: Joi.allow(null).default(1),
-      sortBy: Joi.string().default('updatedAt'),
-      sortOrder: Joi.number().default(1).allow(1, -1),
+      pageNo: Joi.number().positive().integer(),
+      pageSize: Joi.number().positive().integer(),
+      status: Joi.number().positive().integer().valid(...blogStatusVals),
+      sortBy: Joi.string(),
+      sortOrder: Joi.number().valid(...sortOrdersVals),
     }).allow(null),
   },
 }

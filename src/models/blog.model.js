@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 const { blogStatus } = require('../constants');
 
 const schema = new mongoose.Schema({
-  username: { type: String },
-  title: { type: String },
-  content: { type: String },
-  conclusion: { type: String },
+  titleText: { type: String },
+  mainText: { type: String },
+  summaryText: { type: String },
+  category: { type: String },
   images: { type: Array },
-  isDeleted: { type: Boolean, default: false },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   status: { type: Number, enums: values(blogStatus) },
-  publishedAt: { type: Date },
+  statusLogs: { type: Array },
+  isDeleted: { type: Boolean, default: false },
 }, {
   toObject: { useProjection: true },
   toJSON: { virtuals: true, getters: true, useProjection: true },
