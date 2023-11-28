@@ -67,6 +67,10 @@ const pageConfigs = {
   DEFAULT_SORT_KEY: 'updatedAt',
 }
 
+const IMG_UPLOAD_PURPOSES = {
+  PROFILE: 'profile image',
+}
+
 module.exports = {
   userTypes,
   companyUserTypes,
@@ -78,4 +82,5 @@ module.exports = {
   subscriptionPlanPeriods,
   sortOrder,
   pageConfigs,
+  IMG_UPLOAD_PURPOSES,
 }

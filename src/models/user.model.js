@@ -17,6 +17,7 @@ const schema = new mongoose.Schema({
   company: { type: String },
   institute: { type: String },
   website: { type: String },
+  profileImage: { type: String },
   preferences: {
     pushNotification: { type: Boolean },
     sms: { type: Boolean },

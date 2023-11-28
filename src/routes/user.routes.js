@@ -70,4 +70,12 @@ router.post('/admin/:userId/reset-password', validateJoiSchema(userSchema.resetA
   }
 });
 
+router.post('/profile-image', async (req, res, next) => {
+  try {
+    return await userController.uploadProfileImage(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

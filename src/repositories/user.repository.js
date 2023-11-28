@@ -10,6 +10,9 @@ const { userTypes } = require('../constants');
 const userModel = require('../models/user.model');
 
 module.exports = {
+  getModelName: () => {
+    return userModel.modelName;
+  },
   saveUser: async (user) => {
     user = new userModel(user);
     return await user.save();

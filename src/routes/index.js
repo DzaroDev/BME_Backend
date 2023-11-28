@@ -9,6 +9,7 @@ const companyRoutes = require('./company.routes');
 const serviceRoutes = require('./service.routes');
 const blogRoutes = require('./blog.routes');
 const notificationRoutes = require('./notification.routes');
+const fileRoutes = require('./file.routes');
 const authRoutes = require('./auth.routes');
 
 const router = express.Router();
@@ -46,5 +47,6 @@ router.use('/company', companyRoutes);
 router.use('/service', serviceRoutes);
 router.use('/blog', blogRoutes);
 router.use('/notification', notificationRoutes);
+router.use('/files', fileRoutes);
 
 module.exports = router;

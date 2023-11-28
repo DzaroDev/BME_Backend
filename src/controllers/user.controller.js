@@ -1,11 +1,11 @@
-const { isString, isNil } = require('lodash');
-const jwt = require('jsonwebtoken');
+const { isString, isNil, size } = require('lodash');
+const path = require('path');
 
 // config
 const config = require('../config');
 
 // constants
-const { userTypes, nonCompanyUserTypes, adminUserTypes, companyUserTypes } = require('../constants');
+const { userTypes, nonCompanyUserTypes, adminUserTypes, companyUserTypes, IMG_UPLOAD_PURPOSES } = require('../constants');
 
 // helpers
 const createError = require('../helpers/createError');
@@ -13,6 +13,8 @@ const createError = require('../helpers/createError');
 // repositories
 const userRepository = require('../repositories/user.repository');
 const { errorMessages, successMessages } = require('../constants/textVariables');
+const fileRepository = require('../repositories/file.repository');
+const getFileExtension = require('../helpers/getFileExtension');
 
 module.exports = {
   createDefaultAdmin: async () => {
@@ -166,5 +168,44 @@ module.exports = {
     user.password = password;
     user.save()
     return res.json({ statusCode: 200, data: user });
+  },
+  uploadProfileImage: async (req, res, next) => {
+    const imageFile = req.files?.image;
+
+    if (!imageFile) {
+      return next(createError(400, errorMessages.IMAGE_NOT_UPLOADED));
+    }
+
+    const userId = req.auth.user;
+
+    let fileData = await fileRepository.saveFile({
+      relatedEntity: userRepository.getModelName(),
+      relatedEntityId: userId,
+      purpose: IMG_UPLOAD_PURPOSES.PROFILE,
+      originalName: imageFile.name,
+      mimeType: imageFile.mimetype,
+      size: imageFile.size,
+    });
+    
+    const fileName = fileData.id + getFileExtension(fileData.originalName);
+    const filePath = path.join(__dirname, '../../public/images', fileName);
+
+    imageFile.mv(filePath, async function(err) {
+      if (err) {
+        fileData = await fileRepository.findAndRemoveFileById(fileData.id);
+        return next(err);
+      }
+
+      const imageUrl = fileData.imageUrl(req);
+
+      // convert to JSON and add 'imageUrl' into it
+      fileData = fileData.toJSON();
+      fileData.imageUrl = imageUrl;
+
+      // add user's image
+      await userRepository.findUserAndUpdate({ id: userId, profileImage: imageUrl });
+
+      return res.json({ statusCode: 200, message: successMessages.FILE_UPLOADED });
+    });
   },
 }

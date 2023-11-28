@@ -6,13 +6,11 @@ const compress = require('compression');
 const cors = require('cors');
 const { ValidationError } = require('express-validation');
 const helmet = require('helmet');
+const fileUpload = require('express-fileupload');
 const routes = require('./routes');
 const config = require('./config');
 const APIError = require('./helpers/APIError');
 const createError = require('./helpers/createError');
-
-// const crypto = require('crypto').randomBytes(6).toString('hex');
-// console.log({ crypto })
 
 const app = express();
 
@@ -36,6 +34,12 @@ app.use(
     origin: '*',
   }),
 );
+
+// file upload config
+app.use(fileUpload());
+
+// set 'public' directory
+app.use(express.static('public'));
 
 // mount all routes on /api path
 app.use('/api', routes);

@@ -23,6 +23,8 @@ const errorMessages = {
   NOTIFICATION_DOES_NOT_EXIST: 'Notification does not exist',
   INVALID_STATUS: 'Invalid status was provided',
   USER_NOT_AUTHORIZED: 'User not authorized',
+  IMAGE_NOT_UPLOADED: 'No files were uploaded',
+  FILE_NOT_FOUND: 'File not found',
 }
 
 const successMessages = {
@@ -33,6 +35,7 @@ const successMessages = {
   BLOG_DELETED: 'Blog deleted successfully',
   NOTIFICATIONS_SAVED: 'Notifications saved successfully',
   NOTIFICATIONS_UPDATED: 'Notifications updated successfully',
+  FILE_UPLOADED: 'File uploaded successfully',
 }
 
 module.exports = {
