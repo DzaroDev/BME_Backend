@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const schema = new mongoose.Schema({
   relatedEntity: { type: String },
   relatedEntityId: { type: String },
-  purpose: { type: String },
   originalName: { type: String },
   mimeType: { type: String },
   size: { type: Number },

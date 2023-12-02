@@ -36,6 +36,12 @@ const config = {
     name: process.env.EMAIL_SENDER_NAME,
     address: process.env.EMAIL_ADDR,
     pwd: process.env.EMAIL_PWD,
+  },
+  file: {
+    allowedImgFileSize: process.env.ALLOWED_IMAGE_FILE_SIZE,
+    allowedDocFileSize: process.env.ALLOWED_DOCUMENT_FILE_SIZE,
+    allowedImgFileTypes: process.env.ALLOWED_IMAGE_FILE_TYPES,
+    allowedDocFileTypes: process.env.ALLOWED_DOCUMENT_FILE_TYPES,
   }
 }
 

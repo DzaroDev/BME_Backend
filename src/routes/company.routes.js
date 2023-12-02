@@ -49,4 +49,20 @@ router.put('/:companyId', validateJoiSchema(companySchema.updateCompany), async 
   }
 });
 
+router.post('/logo-image', validateJoiSchema(companySchema.uploadLogoImage), async (req, res, next) => {
+  try {
+    return await companyController.uploadLogoImage(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/document-uploads', validateJoiSchema(companySchema.uploadLogoImage), async (req, res, next) => {
+  try {
+    return await companyController.uploadDocuments(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;

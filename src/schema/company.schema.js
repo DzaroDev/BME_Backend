@@ -54,6 +54,11 @@ const schema = {
   updateCompany: {
     body: Joi.object(updateCompanySchema),
   },
+  uploadLogoImage: {
+    body: Joi.object({
+      id: Joi.string().required(),
+    }),
+  },
   listCompany: {
     query: Joi.object().keys({
       pageNo: Joi.number().positive().integer().default(1),

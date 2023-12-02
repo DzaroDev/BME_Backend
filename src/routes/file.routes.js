@@ -6,7 +6,7 @@ const fileController = require('../controllers/file.controller');
 
 router.get('/:fileId', async (req, res, next) => {
   try {
-    return fileController.sendFile(req, res, next);
+    return await fileController.sendFile(req, res, next);
   } catch (error) {
     next(error);
   }

@@ -1,9 +1,15 @@
+const path = require('path');
+
 const { companyUserTypes, nonCompanyUserTypes } = require('../constants');
-const { errorMessages } = require('../constants/textVariables');
+const { errorMessages, successMessages } = require('../constants/textVariables');
 const createError = require('../helpers/createError');
+const getFileExtension = require('../helpers/getFileExtension');
+const validateObjectId = require('../helpers/validateObjectId');
 const companyRepository = require('../repositories/company.repository');
+const fileRepository = require('../repositories/file.repository');
 const memberRepository = require('../repositories/member.repository');
 const userRepository = require('../repositories/user.repository');
+const validateFileUpload = require('../helpers/validateFileUpload');
 
 module.exports = {
   createCompany: async (req, res, next) => {
@@ -140,5 +146,107 @@ module.exports = {
     }
 
     return res.json({ statusCode: 200, data: company });
+  },
+  uploadLogoImage: async (req, res, next) => {
+    const companyId = req.body?.id;
+    const imageFile = req.files?.image;
+
+    if (!imageFile) {
+      return next(createError(400, errorMessages.IMAGE_NOT_UPLOADED));
+    }
+
+    if (!validateObjectId(companyId)) {
+      return next(createError(400, errorMessages.INVALID_OBJECT_ID));
+    }
+    
+    const company = await companyRepository.findCompanyById(companyId);
+
+    if (!company) {
+      return next(createError(400, errorMessages.COMPANY_NOT_EXIST_WITH_ID));
+    }
+
+    const fileValidationRes = validateFileUpload(imageFile, true);
+
+    if (fileValidationRes) {
+      return next(createError(400, fileValidationRes));
+    }
+
+    let fileData = await fileRepository.saveFile({
+      relatedEntity: companyRepository.getModelName(),
+      relatedEntityId: company.id,
+      originalName: imageFile.name,
+      mimeType: imageFile.mimetype,
+      size: imageFile.size,
+    });
+    
+    const fileName = fileData.id + getFileExtension(fileData.originalName);
+    const filePath = path.join(__dirname, '../../public/images', fileName);
+
+    imageFile.mv(filePath, async function(err) {
+      if (err) {
+        fileData = await fileRepository.findAndRemoveFileById(fileData.id);
+        return next(err);
+      }
+
+      // convert to JSON and add 'imageUrl' into it
+      fileData = fileData.toJSON();
+      fileData.imageUrl = fileData.imageUrl(req);
+
+      // add company's logo image
+      await companyRepository.updateCompany(companyId, { logoImage: fileData.imageUrl });
+
+      return res.json({ statusCode: 200, message: successMessages.FILE_UPLOADED });
+    });
+  },
+  uploadDocuments: async (req, res, next) => {
+    const companyId = req.body?.id;
+    const brochureFile = req.files?.brochure;
+
+    if (!brochureFile) {
+      return next(createError(400, errorMessages.IMAGE_NOT_UPLOADED));
+    }
+    
+    const fileValidationRes = validateFileUpload(brochureFile, false);
+
+    if (fileValidationRes) {
+      return next(createError(400, fileValidationRes));
+    }
+
+    if (!validateObjectId(companyId)) {
+      return next(createError(400, errorMessages.INVALID_OBJECT_ID));
+    }
+    
+    const company = await companyRepository.findCompanyById(companyId);
+
+    if (!company) {
+      return next(createError(400, errorMessages.COMPANY_NOT_EXIST_WITH_ID));
+    }
+
+    let fileData = await fileRepository.saveFile({
+      relatedEntity: companyRepository.getModelName(),
+      relatedEntityId: company.id,
+      originalName: brochureFile.name,
+      mimeType: brochureFile.mimetype,
+      size: brochureFile.size,
+    });
+    
+    const fileName = fileData.id + getFileExtension(fileData.originalName);
+    const filePath = path.join(__dirname, '../../public/docs', fileName);
+
+    brochureFile.mv(filePath, async function(err) {
+      if (err) {
+        fileData = await fileRepository.findAndRemoveFileById(fileData.id);
+        return next(err);
+      }
+
+      // convert to JSON and add 'imageUrl' into it
+      fileData = fileData.toJSON();
+      fileData.imageUrl = fileData.imageUrl(req);
+
+      // add company's logo image
+      await companyRepository.updateCompany(companyId, { brochureLink: fileData.imageUrl });
+
+      return res.json({ statusCode: 200, message: successMessages.FILE_UPLOADED });
+    });
   },
 }

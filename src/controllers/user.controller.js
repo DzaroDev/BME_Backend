@@ -1,11 +1,11 @@
-const { isString, isNil, size } = require('lodash');
+const { isString, isNil } = require('lodash');
 const path = require('path');
 
 // config
 const config = require('../config');
 
 // constants
-const { userTypes, nonCompanyUserTypes, adminUserTypes, companyUserTypes, IMG_UPLOAD_PURPOSES } = require('../constants');
+const { userTypes, nonCompanyUserTypes, adminUserTypes, companyUserTypes } = require('../constants');
 
 // helpers
 const createError = require('../helpers/createError');
@@ -15,6 +15,7 @@ const userRepository = require('../repositories/user.repository');
 const { errorMessages, successMessages } = require('../constants/textVariables');
 const fileRepository = require('../repositories/file.repository');
 const getFileExtension = require('../helpers/getFileExtension');
+const validateFileUpload = require('../helpers/validateFileUpload');
 
 module.exports = {
   createDefaultAdmin: async () => {
@@ -176,12 +177,17 @@ module.exports = {
       return next(createError(400, errorMessages.IMAGE_NOT_UPLOADED));
     }
 
+    const fileValidationRes = validateFileUpload(brochureFile, true);
+
+    if (fileValidationRes) {
+      return next(createError(400, fileValidationRes));
+    }
+
     const userId = req.auth.user;
 
     let fileData = await fileRepository.saveFile({
       relatedEntity: userRepository.getModelName(),
       relatedEntityId: userId,
-      purpose: IMG_UPLOAD_PURPOSES.PROFILE,
       originalName: imageFile.name,
       mimeType: imageFile.mimetype,
       size: imageFile.size,

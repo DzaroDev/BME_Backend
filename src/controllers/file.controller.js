@@ -1,5 +1,4 @@
 const path = require('path');
-const mongoose = require('mongoose');
 const fs = require('fs');
 
 //
@@ -7,31 +6,37 @@ const { errorMessages } = require('../constants/textVariables');
 const createError = require('../helpers/createError');
 const fileRepository = require('../repositories/file.repository');
 const getFileExtension = require('../helpers/getFileExtension');
+const validateObjectId = require('../helpers/validateObjectId');
 
 module.exports = {
   sendFile: async (req, res, next) => {
     const fileId = req.params?.fileId;
+    const isDocType = req.query?.isDoc;
 
-    if (!fileId || !mongoose.Types.ObjectId.isValid(fileId)) {
-      return next(createError(400, errorMessages.SOMETHING_WENT_WRONG));
+    if (!validateObjectId(fileId)) {
+      return next(createError(400, errorMessages.INVALID_OBJECT_ID));
     }
 
-    const file = await fileRepository.findFileById(fileId);
+    const fileData = await fileRepository.findFileById(fileId);
 
-    if (!file) {
+    if (!fileData) {
       return next(createError(400, errorMessages.FILE_NOT_FOUND));
     }
 
-    const fileName = file.id + getFileExtension(file.originalName);
-    const filePath = path.join(__dirname, '../../public/images', fileName);
+    const fileName = fileData.id + getFileExtension(fileData.originalName);
+    const filePath = path.join(
+      __dirname,
+      isDocType ? '../../public/docs' : '../../public/images',
+      fileName
+    );
     const fileStream = fs.createReadStream(filePath);
     
-    fileStream.on('data', () => {
-      res.setHeader('Content-Type', file.mimeType);
-      res.setHeader('Content-Disposition', `inline; filename=${file.id}`);
-    });
+    res.setHeader('Content-Type', fileData.mimeType);
+    res.setHeader('Content-Disposition', `inline; filename=${fileData.id}`);
     
     fileStream.on('error', () => {
+      res.setHeader('Content-Type', 'application/json');
+      res.removeHeader('Content-Disposition');
       return next(createError(400, errorMessages.FILE_NOT_FOUND));
     });
     

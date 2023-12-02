@@ -1,6 +1,9 @@
 const companyModel = require('../models/company.model');
 
 module.exports = {
+  getModelName: () => {
+    return companyModel.modelName;
+  },
   saveCompany: async (company) => {
     // active by default
     company.isActive = true;
