@@ -67,6 +67,12 @@ const pageConfigs = {
   DEFAULT_SORT_KEY: 'updatedAt',
 }
 
+const jobPostingStatus = {
+  CREATED: 1,
+  PUBLISHED: 2,
+  UNPUBLISHED: 3,
+}
+
 module.exports = {
   userTypes,
   companyUserTypes,
@@ -78,4 +84,5 @@ module.exports = {
   subscriptionPlanPeriods,
   sortOrder,
   pageConfigs,
+  jobPostingStatus,
 }

@@ -26,6 +26,7 @@ const errorMessages = {
   IMAGE_NOT_UPLOADED: 'No files were uploaded',
   FILE_NOT_FOUND: 'File not found',
   INVALID_OBJECT_ID: 'Invalid ID was provided',
+  JOB_POST_DOES_NOT_EXIST: 'Job post does not exist',
 }
 
 const successMessages = {

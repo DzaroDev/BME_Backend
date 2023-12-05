@@ -10,6 +10,7 @@ const serviceRoutes = require('./service.routes');
 const blogRoutes = require('./blog.routes');
 const notificationRoutes = require('./notification.routes');
 const fileRoutes = require('./file.routes');
+const jobPostingRoutes = require('./jobPosting.routes');
 const authRoutes = require('./auth.routes');
 
 const router = express.Router();
@@ -48,5 +49,6 @@ router.use('/service', serviceRoutes);
 router.use('/blog', blogRoutes);
 router.use('/notification', notificationRoutes);
 router.use('/files', fileRoutes);
+router.use('/job-posting', jobPostingRoutes);
 
 module.exports = router;
