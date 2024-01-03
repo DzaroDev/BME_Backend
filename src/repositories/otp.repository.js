@@ -4,6 +4,10 @@ const { isString } = require('lodash');
 const otpModel = require('../models/otp.model');
 
 module.exports = {
+  findOtpByQuery: async (query) => {
+    const output = await otpModel.findOne(query).exec();
+    return output;
+  },
   findOtpForMobileVerification: async (mobile, purpose) => {
     const output = await otpModel.findOne({
       value: mobile,

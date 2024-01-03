@@ -32,12 +32,13 @@ const errorMessages = {
 const successMessages = {
   MOBILE_OTP_SENT: 'OTP sent to your mobile.',
   EMAIL_OTP_SENT: 'OTP sent to your email.',
-  MOBILE_OTP_VERIFIED: 'Mobile verification successful.',
-  EMAIL_OTP_VERIFIED: 'Email verification successful.',
+  MOBILE_OTP_VERIFIED: 'Mobile verified.',
+  EMAIL_OTP_VERIFIED: 'Email verified.',
   BLOG_DELETED: 'Blog deleted successfully',
   NOTIFICATIONS_SAVED: 'Notifications saved successfully',
   NOTIFICATIONS_UPDATED: 'Notifications updated successfully',
   FILE_UPLOADED: 'File uploaded successfully',
+  RESET_PWD: 'Reset password successful',
 }
 
 module.exports = {

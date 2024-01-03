@@ -123,6 +123,15 @@ module.exports = {
     body: Joi.object().keys({
       firstName: Joi.string().min(3).max(200),
       lastName: Joi.string(),
+      userType: Joi.number()
+        .valid(...userTypes.companyUserTypes, ...userTypes.nonCompanyUserTypes)
+        .messages({'any.invalid': 'Invalid user type provided!'}),
+      category: Joi.string()
+        .when('userType', {
+          is: Joi.number().valid(...userTypes.companyUserTypes),
+          then: Joi.string().required(),
+          otherwise: Joi.forbidden(),
+        }),
       city: Joi.string(),
       company: Joi.string(),
       institute: Joi.string(),
@@ -151,5 +160,25 @@ module.exports = {
         .required()
         .messages({'string.pattern.base': 'Password must be atleast 8 characters including uppercase,lowercase and special characters.'}),
     }).min(1).message('No field has been provided.'),
+  },
+  resetPassword: {
+    body: Joi.object().keys({
+      password: Joi.string()
+        .min(8)
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+        .required()
+        .messages({'string.pattern.base': 'Password must be atleast 8 characters including uppercase,lowercase and special characters.'}),
+      code: Joi.string()
+        .regex(/^[0-9]{6}$/)
+        .required()
+        .messages({'string.pattern.base': 'OTP must have 6-digits.'}),
+      mobile: Joi.string()
+        .empty(null)
+        .regex(/^[0-9]{10}$/)
+        .messages({'string.pattern.base': 'Mobile must have 10-digits.'}),
+      email: Joi.string()
+        .empty(null)
+        .email({ tlds: { allow: false } }),
+    }).or('mobile', 'email'),
   },
 }

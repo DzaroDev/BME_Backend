@@ -22,6 +22,7 @@ const userSchema = require('../schema/user.schema');
 
 // helpers
 const createError = require('../helpers/createError');
+const companyRepository = require('../repositories/company.repository');
 
 // express router
 const router = express.Router();
@@ -54,10 +55,13 @@ router.post('/token', validateJoiSchema(userSchema.login), async (req, res, next
       return next(createError(400, errorMessages.INVALID_USER_PWD));
     }
 
+    user = user.toJSON();
+    const company = await companyRepository.findCompanyByQuery({ user: user.id });
+
     // create/sign token by user id
     const token = jwt.sign({ user: user.id }, config.jwtSecret);
     
-    res.json({ statusCode: 200, data: { user, token } });
+    res.json({ statusCode: 200, data: { ...user, company, token } });
   } catch (error) {
     next(error);
   }
@@ -86,6 +90,34 @@ router.post('/verify-otp', validateJoiSchema(userSchema.verifyOtp), async (req, 
       return authController.verifyEmailOtp(req, res, next);
     }
     return res.json({ message: errorMessages.SOMETHING_WENT_WRONG });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/forgot-password', validateJoiSchema(userSchema.otp), async (req, res, next) => {
+  try {
+    if (isString(req.body.mobile)) {
+      return authController.forgotPasswordForMobile(req, res, next);
+    }
+    if (isString(req.body.email)) {
+      return authController.forgotPasswordForEmail(req, res, next);
+    }
+    return next(createError(500, errorMessages.SOMETHING_WENT_WRONG));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/reset-password', validateJoiSchema(userSchema.resetPassword), async (req, res, next) => {
+  try {
+    if (isString(req.body.mobile)) {
+      return authController.resetPasswordForMobile(req, res, next);
+    }
+    if (isString(req.body.email)) {
+      return authController.resetPasswordForEmail(req, res, next);
+    }
+    return next(createError(500, errorMessages.SOMETHING_WENT_WRONG));
   } catch (error) {
     next(error);
   }

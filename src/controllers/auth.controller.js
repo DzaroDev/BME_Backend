@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 // config
 const config = require('../config');
 
@@ -11,6 +13,7 @@ const createError = require('../helpers/createError');
 // helpers
 const generateOtp = require('../helpers/generateOtp');
 const generateRandomPwd = require('../helpers/generateRandomPwd');
+const companyRepository = require('../repositories/company.repository');
 // const generateTemplate = require('../helpers/generateTemplate');
 // const sendMail = require('../helpers/sendMail');
 
@@ -58,9 +61,9 @@ module.exports = {
     }
 
     // check if already verified
-    if (otpObj.isVerified) {
-      return next(createError(400, errorMessages.MOBILE_ALREADY_VERIFIED));
-    }
+    // if (otpObj.isVerified) {
+    //   return next(createError(400, errorMessages.MOBILE_ALREADY_VERIFIED));
+    // }
 
     // check if OTP matches
     if (otpObj.code !== code) {
@@ -68,17 +71,31 @@ module.exports = {
     }
 
     // update OTP in db
-    otpObj.isVerified = true;
-    await otpObj.save();
+    if (!otpObj.isVerified) {
+      otpObj.isVerified = true;
+      await otpObj.save();
+    }
 
-    // save user with unknown type
-    const user = {
-      mobile: mobile,
-      password: generateRandomPwd(),
-    };
-    await userRepository.saveUser(user);
+    // find verified user
+    let user = await userRepository.findUserByQuery({ mobile, isVerified: true });
+    
+    // check if user does not exist with email
+    if (!user) {
+      // create new user
+      user = {
+        mobile,
+        password: generateRandomPwd(),
+      };
+      user = await userRepository.createVerifiedUser(user);
+    }
 
-    res.json({  statusCode: 200, message: successMessages.MOBILE_OTP_VERIFIED });
+    user = user.toJSON();
+    const company = await companyRepository.findCompanyByQuery({ user: user.id });
+
+    // create/sign token by user id
+    const token = jwt.sign({ user: user.id }, config.jwtSecret);
+
+    res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_VERIFIED, data: { ...user, company, token } });
   },
   sendOtpForEmailRegister: async (req, res, next) => {
     const email = req.body.email;
@@ -132,9 +149,9 @@ module.exports = {
     }
 
     // check if already verified
-    if (otpObj.isVerified) {
-      return next(createError(400, errorMessages.EMAIL_ALREADY_VERIFIED));
-    }
+    // if (otpObj.isVerified) {
+    //   return next(createError(400, errorMessages.EMAIL_ALREADY_VERIFIED));
+    // }
 
     // check if OTP matches
     if (otpObj.code !== code) {
@@ -142,16 +159,174 @@ module.exports = {
     }
 
     // update OTP in db
+    if (!otpObj.isVerified) {
+      otpObj.isVerified = true;
+      await otpObj.save();
+    }
+
+    // find verified user
+    let user = await userRepository.findUserByQuery({ email, isVerified: true });
+    
+    // check if user does not exist with email
+    if (!user) {
+      // create new user
+      user = {
+        email,
+        password: generateRandomPwd(),
+      };
+      user = await userRepository.createVerifiedUser(user);
+    }
+
+    user = user.toJSON();
+    const company = await companyRepository.findCompanyByQuery({ user: user.id });
+
+    // create/sign token by user id
+    const token = jwt.sign({ user: user.id }, config.jwtSecret);
+
+    res.json({ statusCode: 200, message: successMessages.EMAIL_OTP_VERIFIED, data: { ...user, company, } });
+  },
+  forgotPasswordForMobile: async (req, res, next) => {
+    const mobile = req.body.mobile;
+
+    // find user
+    const user = await userRepository.findOneByMobile(mobile);
+
+    if (!user) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
+    const query = {
+      value: mobile,
+      isVerified: false,
+      purpose: otpPurpose.FORGOT_PWD,
+    }
+
+    let otpObj = await otpRepository.findOtpByQuery(query);
+
+    // generate random OTP code
+    const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
+
+    if (otpObj) {
+      // update the code
+      otpObj.code = otpCode;
+      await otpObj.save();
+    } else {
+      // save new otp
+      otpObj = await otpRepository.saveOtp({
+        mobile,
+        code: otpCode,
+        purpose: otpPurpose.FORGOT_PWD,
+      });
+    }
+
+    return res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_SENT });
+    // send sms for OTP
+  },
+  forgotPasswordForEmail: async (req, res, next) => {
+    const email = req.body.email;
+
+    // find user
+    const user = await userRepository.findOneByEmail(email);
+
+    if (!user) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
+    const query = {
+      value: email,
+      isVerified: false,
+      purpose: otpPurpose.FORGOT_PWD,
+    }
+
+    let otpObj = await otpRepository.findOtpByQuery(query);
+
+    // generate random OTP code
+    const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
+
+    if (otpObj) {
+      // update the code
+      otpObj.code = otpCode;
+      await otpObj.save();
+    } else {
+      // save new otp
+      otpObj = await otpRepository.saveOtp({
+        email,
+        code: otpCode,
+        purpose: otpPurpose.FORGOT_PWD,
+      });
+    }
+
+    return res.json({ statusCode: 200, message: successMessages.EMAIL_OTP_SENT });
+    // send sms for OTP
+  },
+  resetPasswordForMobile: async (req, res, next) => {
+    const mobile = req.body.mobile;
+    const code = req.body.code;
+    const password = req.body.password;
+
+    // find user
+    const user = await userRepository.findOneByMobile(mobile);
+
+    if (!user) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
+    const query = {
+      value: mobile,
+      code,
+      isVerified: false,
+      purpose: otpPurpose.FORGOT_PWD,
+    }
+
+    let otpObj = await otpRepository.findOtpByQuery(query);
+
+    if (!otpObj) {
+      return next(createError(400, errorMessages.SOMETHING_WENT_WRONG));
+    }
+
+    // update the code
     otpObj.isVerified = true;
     await otpObj.save();
 
-    // save user with unknown type
-    const user = {
-      email: email,
-      password: generateRandomPwd(),
-    };
-    await userRepository.saveUser(user);
+    // update user's password
+    user.password = password;
+    await user.save()
 
-    res.json({ statusCode: 200, message: successMessages.EMAIL_OTP_VERIFIED });
+    return res.json({ statusCode: 200, message: successMessages.RESET_PWD });
+  },
+  resetPasswordForEmail: async (req, res, next) => {
+    const email = req.body.email;
+    const code = req.body.code;
+    const password = req.body.password;
+
+    // find user
+    const user = await userRepository.findOneByEmail(email);
+
+    if (!user) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
+    const query = {
+      value: email,
+      code,
+      isVerified: false,
+      purpose: otpPurpose.FORGOT_PWD,
+    }
+
+    let otpObj = await otpRepository.findOtpByQuery(query);
+
+    if (!otpObj) {
+      return next(createError(400, errorMessages.SOMETHING_WENT_WRONG));
+    }
+
+    // update the code
+    otpObj.isVerified = true;
+    await otpObj.save();
+
+    // update user's password
+    user.password = password;
+    await user.save()
+
+    return res.json({ statusCode: 200, message: successMessages.RESET_PWD });
   },
 }
