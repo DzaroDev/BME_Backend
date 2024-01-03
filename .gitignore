@@ -55,4 +55,4 @@ node_modules
 .env.*
 
 # public files
-public/
+# public/

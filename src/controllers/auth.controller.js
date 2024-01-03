@@ -11,8 +11,8 @@ const createError = require('../helpers/createError');
 // helpers
 const generateOtp = require('../helpers/generateOtp');
 const generateRandomPwd = require('../helpers/generateRandomPwd');
-const generateTemplate = require('../helpers/generateTemplate');
-const sendMail = require('../helpers/sendMail');
+// const generateTemplate = require('../helpers/generateTemplate');
+// const sendMail = require('../helpers/sendMail');
 
 // repositories
 const otpRepository = require('../repositories/otp.repository');
@@ -109,18 +109,18 @@ module.exports = {
     res.json({ message: successMessages.EMAIL_OTP_SENT });
 
     // send email for OTP
-    sendMail({ 
-      toEmail: email,
-      subject: 'Verify your email!',
-      text: 'Text Verify your email!',
-      template: generateTemplate(
-        '../assets/signUpEmailTemplate.html',
-        {
-          name: 'Mohit',
-          code: otpCode,
-        }
-      ),
-    });
+    // sendMail({ 
+    //   toEmail: email,
+    //   subject: 'Verify your email!',
+    //   text: 'Text Verify your email!',
+    //   template: generateTemplate(
+    //     '../assets/signUpEmailTemplate.html',
+    //     {
+    //       name: '',
+    //       code: otpCode,
+    //     }
+    //   ),
+    // });
   },
   verifyEmailOtp: async (req, res, next) => {
     const { email, code } = req.body;
