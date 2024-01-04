@@ -32,6 +32,25 @@ module.exports = {
     }
     return output;
   },
+  findAllCompaniesWithMinimalFields: async (query, pagination) => {
+    query = { ...query, isDeleted: false, isActive: true };
+    let output = null;
+    if (pagination) {
+      const { pageNo, pageSize, sortBy, sortOrder } = pagination;
+      output = await companyModel.find(query)
+        .select('id name')
+        .populate({
+          path: 'user',
+          select: 'id firstName lastName'
+        })
+        .limit(pageSize)
+        .skip((pageNo - 1) * pageSize)
+        .sort({ [sortBy]: sortOrder });
+    } else {
+      output = await companyModel.find(query);
+    }
+    return output;
+  },
   updateCompany: async (companyId, updateQuery) => {
     const output = await companyModel.findByIdAndUpdate(companyId, updateQuery, { new: true });
     return output;

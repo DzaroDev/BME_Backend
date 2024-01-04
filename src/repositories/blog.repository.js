@@ -36,4 +36,25 @@ module.exports = {
     }
     return await blogModel.find(query, '-statusLogs').populate(populateAuthorQuery);
   },
+  findAllBlogsWithMinimalFields: async (query, pageOptions) => {
+    query = { ...query, isDeleted: false };
+    if (size(pageOptions) > 1) {
+      const {
+        pageNo = pageConfigs.DEFAULT_PAGE,
+        pageSize = pageConfigs.DEFAULT_PAGE_SIZE,
+        sortBy = pageConfigs.DEFAULT_SORT_KEY,
+        sortOrder = pageConfigs.DEFAULT_SORT_ORDER
+      } = pageOptions;
+      
+      return await blogModel.find(query)
+        .select('id titleText')
+        .populate({
+          path: 'author',
+          select: 'firstName lastName'
+        })
+        .limit(pageSize).skip((pageNo - 1) * pageSize)
+        .sort({ [sortBy]: sortOrder });
+    }
+    return await blogModel.find(query, '-statusLogs').populate(populateAuthorQuery);
+  },
 }
