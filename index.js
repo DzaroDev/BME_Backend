@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const util = require('util');
 const debug = require('debug')('node-server:index');
+const path = require('path');
+const fs = require('fs');
 
 // config
 const config = require('./src/config');
@@ -37,6 +39,13 @@ mongoose
 
       // create default admin
       await userController.createDefaultAdmin();
+
+      // create default directories
+      const imgDirPath = path.resolve(__dirname, './public/images');
+      const docDirPath = path.resolve(__dirname, './public/docs');
+
+      if (!fs.existsSync(imgDirPath)) fs.mkdirSync(imgDirPath);
+      if (!fs.existsSync(docDirPath)) fs.mkdirSync(docDirPath);
 
       // start server
       server.listen(config.port, () => {

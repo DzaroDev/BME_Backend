@@ -55,4 +55,5 @@ node_modules
 .env.*
 
 # public files
-# public/
+public/docs/*
+public/images/*
