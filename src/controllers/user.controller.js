@@ -16,6 +16,7 @@ const { errorMessages, successMessages } = require('../constants/textVariables')
 const fileRepository = require('../repositories/file.repository');
 const getFileExtension = require('../helpers/getFileExtension');
 const validateFileUpload = require('../helpers/validateFileUpload');
+const companyRepository = require('../repositories/company.repository');
 
 module.exports = {
   createDefaultAdmin: async () => {
@@ -52,7 +53,10 @@ module.exports = {
       return next(createError(400, errorMessages.USER_NOT_ACTIVE));
     }
 
-    return res.json({ statusCode: 200, data: user });
+    user = user.toJSON()
+    const company = await companyRepository.findCompanyByQuery({ user: user.id });
+
+    return res.json({ statusCode: 200, data: { ...user, company } });
   },
   createUser: async (req, res, next) => {
     const inputBody = req.body;
@@ -177,7 +181,7 @@ module.exports = {
       return next(createError(400, errorMessages.IMAGE_NOT_UPLOADED));
     }
 
-    const fileValidationRes = validateFileUpload(brochureFile, true);
+    const fileValidationRes = validateFileUpload(imageFile, true);
 
     if (fileValidationRes) {
       return next(createError(400, fileValidationRes));

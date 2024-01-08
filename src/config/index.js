@@ -18,6 +18,8 @@ const config = {
   addr: process.env.SERVER_ADDR,
   port: process.env.SERVER_PORT,
   apiKey: process.env.API_KEY,
+  msg91AuthKey: process.env.MSG91_AUTH_KEY,
+  msg91SenderId: process.env.MSG91_OTP_SENDER_ID,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN_SEC,
   db: {

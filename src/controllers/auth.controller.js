@@ -20,36 +20,27 @@ const companyRepository = require('../repositories/company.repository');
 // repositories
 const otpRepository = require('../repositories/otp.repository');
 const userRepository = require('../repositories/user.repository');
+const sendOtpSms = require('../helpers/sendOtpSms');
 
 module.exports = {
   sendOtpForMobileRegister: async (req, res, next) => {
     const mobile = req.body.mobile;
-    
-    let otpObj = await otpRepository.findOtpByMobile(mobile);
-    
-    // check if already verified
-    if (otpObj?.isVerified) {
-      return next(createError(400, errorMessages.MOBILE_ALREADY_VERIFIED));
-    }
-
     // generate random OTP code
     const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
-    if (otpObj) {
-      // update the code
-      otpObj.code = otpCode;
-      await otpObj.save();
-    } else {
-      // save new otp
-      otpObj = await otpRepository.saveOtp({
-        mobile,
-        code: otpCode,
-        purpose: otpPurpose.SIGN_UP,
-      });
+    // save new otp
+    const otpObj = await otpRepository.saveOtp({
+      mobile,
+      code: otpCode,
+      purpose: otpPurpose.SIGN_UP,
+    });
+
+    // send sms for OTP
+    if (config.env !== 'development') {
+      sendOtpSms({ mobile, otpCode })
     }
 
     return res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_SENT });
-    // send sms for OTP
   },
   verifyMobileOtp: async (req, res, next) => {
     const { mobile, code } = req.body;
@@ -99,29 +90,16 @@ module.exports = {
   },
   sendOtpForEmailRegister: async (req, res, next) => {
     const email = req.body.email;
-    
-    let otpObj = await otpRepository.findOtpByEmail(email);
-    
-    // check if already verified
-    if (otpObj?.isVerified) {
-      return next(createError(400, errorMessages.EMAIL_ALREADY_VERIFIED));
-    }
 
     // generate random OTP code
     const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
-    if (otpObj) {
-      // update the code
-      otpObj.code = otpCode;
-      await otpObj.save();
-    } else {
-      // save new otp
-      otpObj = await otpRepository.saveOtp({
-        email,
-        code: otpCode,
-        purpose: otpPurpose.SIGN_UP,
-      });
-    }
+    // save new otp
+    const otpObj = await otpRepository.saveOtp({
+      email,
+      code: otpCode,
+      purpose: otpPurpose.SIGN_UP,
+    });
 
     res.json({ message: successMessages.EMAIL_OTP_SENT });
 
