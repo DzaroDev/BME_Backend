@@ -67,6 +67,20 @@ router.post('/token', validateJoiSchema(userSchema.login), async (req, res, next
   }
 });
 
+router.post('/register', validateJoiSchema(userSchema.registerUser), async (req, res, next) => {
+  try {
+    if (isString(req.body.user.mobile)) {
+      return authController.registerUserByMobile(req, res, next);
+    }
+    if (isString(req.body.user.email)) {
+      return authController.registerUserByEmail(req, res, next);
+    }
+    return res.json({ message: errorMessages.SOMETHING_WENT_WRONG });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/send-otp', validateJoiSchema(userSchema.otp), async (req, res, next) => {
   try {
     if (isString(req.body.mobile)) {

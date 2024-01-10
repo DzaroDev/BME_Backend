@@ -21,6 +21,8 @@ const companyRepository = require('../repositories/company.repository');
 const otpRepository = require('../repositories/otp.repository');
 const userRepository = require('../repositories/user.repository');
 const sendOtpSms = require('../helpers/sendOtpSms');
+const companyController = require('./company.controller');
+const serviceController = require('./service.controller');
 
 module.exports = {
   sendOtpForMobileRegister: async (req, res, next) => {
@@ -42,6 +44,118 @@ module.exports = {
 
     return res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_SENT });
   },
+  registerUserByMobile: async (req, res, next) => {
+    const userInputBody = req.body.user;
+    const companyInputBody = req.body?.company;
+    const serviceInputBody = req.body?.service;
+
+    let otpObj = await otpRepository.findOtpForMobileVerification(userInputBody?.mobile, otpPurpose.SIGN_UP);
+
+    if (!otpObj || !otpObj?.isVerified) {
+      return next(createError(400, errorMessages.MOBILE_NOT_VERIFIED));
+    }
+
+    let user = await userRepository.findUserByQuery({ mobile: userInputBody?.mobile });
+
+    if (!user) {
+      return next(createError(400, errorMessages.MOBILE_NOT_VERIFIED));
+    }
+
+    if (user?.isVerified) {
+      return next(createError(400, errorMessages.USER_ALREADY_VERIFIED));
+    }
+
+    let newUser = {
+      id: user.id,
+      ...(userInputBody || {}),
+    };
+    let company = null;
+    let companyService = null;
+    let companyErrorMsg = null;
+    let serviceErrorMsg = null;
+
+    // company is optional
+    if (companyInputBody) {
+      await companyController.createCompanyWithRegisteredUser(newUser, companyInputBody, async (err, data) => {
+        if (err) companyErrorMsg = err;
+        company = data;
+      });
+      if (companyErrorMsg) return next(companyErrorMsg);
+    }
+
+    user = await userRepository.createVerifiedUser(newUser);
+    user = user.toJSON();
+
+    if (serviceInputBody) {
+      serviceInputBody.companyId = company.id;
+      await serviceController.createServiceWithRegisteredUser(newUser, serviceInputBody, async (err, data) => {
+        if (err) serviceErrorMsg = err;
+        companyService = data;
+      });
+      if (serviceErrorMsg) return next(serviceErrorMsg);
+    }
+
+    // create/sign token by user id
+    const token = jwt.sign({ user: user.id }, config.jwtSecret);
+
+    res.json({ statusCode: 200, message: successMessages.USER_REGISTERED, data: { ...user, company, token } });
+  },
+  registerUserByEmail: async (req, res, next) => {
+    const userInputBody = req.body.user;
+    const companyInputBody = req.body?.company;
+    const serviceInputBody = req.body?.service;
+
+    let otpObj = await otpRepository.findOtpForMobileVerification(userInputBody?.email, otpPurpose.SIGN_UP);
+
+    if (!otpObj || !otpObj?.isVerified) {
+      return next(createError(400, errorMessages.EMAIL_NOT_VERIFIED));
+    }
+
+    let user = await userRepository.findUserByQuery({ email: userInputBody?.email });
+
+    if (!user) {
+      return next(createError(400, errorMessages.EMAIL_NOT_VERIFIED));
+    }
+
+    if (user?.isVerified) {
+      return next(createError(400, errorMessages.USER_ALREADY_VERIFIED));
+    }
+
+    let newUser = {
+      id: user.id,
+      ...(userInputBody || {}),
+    };
+    let company = null;
+    let companyService = null;
+    let companyErrorMsg = null;
+    let serviceErrorMsg = null;
+
+    // company is optional
+    if (companyInputBody) {
+      await companyController.createCompanyWithRegisteredUser(newUser, companyInputBody, async (err, data) => {
+        if (err) companyErrorMsg = err;
+        company = data;
+      });
+      if (companyErrorMsg) return next(companyErrorMsg);
+    }
+
+    user = await userRepository.createVerifiedUser(newUser);
+    user = user.toJSON();
+
+    if (serviceInputBody) {
+      serviceInputBody.companyId = company.id;
+      await serviceController.createServiceWithRegisteredUser(newUser, serviceInputBody, async (err, data) => {
+        if (err) serviceErrorMsg = err;
+        companyService = data;
+      });
+      if (serviceErrorMsg) return next(serviceErrorMsg);
+    }
+
+    // create/sign token by user id
+    const token = jwt.sign({ user: user.id }, config.jwtSecret);
+
+    res.json({ statusCode: 200, message: successMessages.USER_REGISTERED, data: { ...user, company, token } });
+  },
   verifyMobileOtp: async (req, res, next) => {
     const { mobile, code } = req.body;
 
@@ -51,42 +165,27 @@ module.exports = {
       return next(createError(400, errorMessages.MOBILE_OTP_DOES_NOT_EXIST));
     }
 
-    // check if already verified
-    // if (otpObj.isVerified) {
-    //   return next(createError(400, errorMessages.MOBILE_ALREADY_VERIFIED));
-    // }
-
     // check if OTP matches
     if (otpObj.code !== code) {
       return next(createError(400, errorMessages.OTP_DOES_NOT_MATCH));
     }
 
     // update OTP in db
-    if (!otpObj.isVerified) {
-      otpObj.isVerified = true;
-      await otpObj.save();
-    }
+    otpObj.isVerified = true;
+    await otpObj.save();
 
-    // find verified user
-    let user = await userRepository.findUserByQuery({ mobile, isVerified: true });
-    
-    // check if user does not exist with email
+    // check if user already exist
+    let user = await userRepository.findUserByQuery({ mobile });
+
+    // save user if not found
     if (!user) {
-      // create new user
       user = {
         mobile,
-        password: generateRandomPwd(),
       };
-      user = await userRepository.createVerifiedUser(user);
+      user = await userRepository.saveUser(user);
     }
 
-    user = user.toJSON();
-    const company = await companyRepository.findCompanyByQuery({ user: user.id });
-
-    // create/sign token by user id
-    const token = jwt.sign({ user: user.id }, config.jwtSecret);
-
-    res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_VERIFIED, data: { ...user, company, token } });
+    res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_VERIFIED });
   },
   sendOtpForEmailRegister: async (req, res, next) => {
     const email = req.body.email;
@@ -126,42 +225,27 @@ module.exports = {
       return next(createError(400, errorMessages.EMAIL_OTP_DOES_NOT_EXIST));
     }
 
-    // check if already verified
-    // if (otpObj.isVerified) {
-    //   return next(createError(400, errorMessages.EMAIL_ALREADY_VERIFIED));
-    // }
-
     // check if OTP matches
     if (otpObj.code !== code) {
       return next(createError(400, errorMessages.OTP_DOES_NOT_MATCH));
     }
 
     // update OTP in db
-    if (!otpObj.isVerified) {
-      otpObj.isVerified = true;
-      await otpObj.save();
-    }
+    otpObj.isVerified = true;
+    await otpObj.save();
 
-    // find verified user
-    let user = await userRepository.findUserByQuery({ email, isVerified: true });
-    
-    // check if user does not exist with email
+    // check if user already exist
+    let user = await userRepository.findUserByQuery({ email });
+
+    // save user if not found
     if (!user) {
-      // create new user
       user = {
         email,
-        password: generateRandomPwd(),
       };
-      user = await userRepository.createVerifiedUser(user);
+      user = await userRepository.saveUser(user);
     }
 
-    user = user.toJSON();
-    const company = await companyRepository.findCompanyByQuery({ user: user.id });
-
-    // create/sign token by user id
-    const token = jwt.sign({ user: user.id }, config.jwtSecret);
-
-    res.json({ statusCode: 200, message: successMessages.EMAIL_OTP_VERIFIED, data: { ...user, company, } });
+    res.json({ statusCode: 200, message: successMessages.EMAIL_OTP_VERIFIED });
   },
   forgotPasswordForMobile: async (req, res, next) => {
     const mobile = req.body.mobile;

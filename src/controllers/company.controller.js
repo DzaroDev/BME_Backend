@@ -12,6 +12,46 @@ const userRepository = require('../repositories/user.repository');
 const validateFileUpload = require('../helpers/validateFileUpload');
 
 module.exports = {
+  createCompanyWithRegisteredUser: async (registeredUser, companyInputBody, callback = () => {}) => {
+    if (!registeredUser || !registeredUser?.id) {
+      return callback(createError(400, errorMessages.SOMETHING_WENT_WRONG));
+    }
+
+    let user = await userRepository.findUserByQuery({ _id: registeredUser.id });
+    let company = null;
+
+    // check if company exists with registration Id
+    company = await companyRepository.findCompanyByQuery({ registrationId: companyInputBody?.registrationId });
+
+    if (company) {
+      return callback(createError(400, errorMessages.COMPANY_EXIST_WITH_REG_NUM));
+    }
+
+    // check if company exists with mobile/email
+    company = await companyRepository.findCompanyByQuery({ $or: [ { mobile: companyInputBody.mobile }, { email: companyInputBody.email } ] });
+
+    if (company) {
+      return callback(createError(400, errorMessages.COMPANY_EXIST_WITH_MOBILE_EMAIL));
+    }
+
+    // assign user
+    companyInputBody.user = user.id;
+
+    // save new company
+    company = await companyRepository.saveCompany(companyInputBody);
+    let companyMembers = null;
+
+    if (company.id && companyInputBody?.members?.length > 0) {
+      companyMembers = await memberRepository.saveManyCompanyMember(company.id, companyInputBody.members);
+    }
+
+    if (companyMembers) {
+      company = company.toJSON();
+      company.members = companyMembers;
+    }
+
+    return callback(null, company);
+  },
   createCompany: async (req, res, next) => {
     const inputBody = req.body;
     let authUser = req.auth.user;

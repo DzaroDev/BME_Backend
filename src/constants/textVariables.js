@@ -13,6 +13,7 @@ const errorMessages = {
   INVALID_USER_PWD: 'Incorrect password.',
   USER_NOT_ACTIVE: 'Account de-activated. Please contact Admin.',
   USER_NOT_VERIFIED: 'User is not verified.',
+  USER_ALREADY_VERIFIED: 'User is already verified.',
   INVALID_TOKEN: 'Invalid token was provided',
   INVALID_USR_PROFILE: 'Invalid user profile',
   COMPANY_EXIST_WITH_REG_NUM: 'Company already exist with registration number',
@@ -39,6 +40,7 @@ const successMessages = {
   NOTIFICATIONS_UPDATED: 'Notifications updated successfully',
   FILE_UPLOADED: 'File uploaded successfully',
   RESET_PWD: 'Reset password successful',
+  USER_REGISTERED: 'User registered successfully',
 }
 
 module.exports = {

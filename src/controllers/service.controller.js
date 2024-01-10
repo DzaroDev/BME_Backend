@@ -4,6 +4,25 @@ const companyRepository = require('../repositories/company.repository');
 const serviceRepository = require('../repositories/service.repository');
 
 module.exports = {
+  createServiceWithRegisteredUser: async (registeredUser, serviceInputBody, callback = () => {}) => {
+    if (!registeredUser || !registeredUser?.id || !serviceInputBody?.companyId) {
+      return callback(createError(400, errorMessages.SOMETHING_WENT_WRONG), null);
+    }
+    
+    // assign user
+    serviceInputBody.user = registeredUser.id;
+
+    // check if company exists
+    const company = await companyRepository.findCompanyById(serviceInputBody.companyId);
+
+    if (!company) {
+      return callback(createError(400, errorMessages.COMPANY_NOT_EXIST_WITH_ID));
+    }
+
+    const service = await serviceRepository.saveService(serviceInputBody);
+    
+    return callback(null, service);
+  },
   createService: async (req, res, next) => {
     const inputBody = req.body;
 
