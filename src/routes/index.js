@@ -12,6 +12,7 @@ const notificationRoutes = require('./notification.routes');
 const fileRoutes = require('./file.routes');
 const jobPostingRoutes = require('./jobPosting.routes');
 const pageContentRoutes = require('./pageContent.routes');
+const subscriptionRoutes = require('./subscription.routes');
 const authRoutes = require('./auth.routes');
 
 const router = express.Router();
@@ -52,5 +53,6 @@ router.use('/notification', notificationRoutes);
 router.use('/files', fileRoutes);
 router.use('/job-posting', jobPostingRoutes);
 router.use('/page-content', pageContentRoutes);
+router.use('/subscription', subscriptionRoutes);
 
 module.exports = router;

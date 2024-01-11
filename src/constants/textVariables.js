@@ -28,6 +28,7 @@ const errorMessages = {
   FILE_NOT_FOUND: 'File not found',
   INVALID_OBJECT_ID: 'Invalid ID was provided',
   JOB_POST_DOES_NOT_EXIST: 'Job post does not exist',
+  PLAN_DOES_NOT_EXIST: 'Plan does not exist',
 }
 
 const successMessages = {
@@ -41,6 +42,8 @@ const successMessages = {
   FILE_UPLOADED: 'File uploaded successfully',
   RESET_PWD: 'Reset password successful',
   USER_REGISTERED: 'User registered successfully',
+  PLAN_CREATED: 'Plan created successfully',
+  PLAN_UPDATED: 'Plan updated successfully',
 }
 
 module.exports = {

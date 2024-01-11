@@ -44,7 +44,11 @@ const config = {
     allowedDocFileSize: process.env.ALLOWED_DOCUMENT_FILE_SIZE,
     allowedImgFileTypes: process.env.ALLOWED_IMAGE_FILE_TYPES,
     allowedDocFileTypes: process.env.ALLOWED_DOCUMENT_FILE_TYPES,
-  }
+  },
+  subscription: {
+    name: process.env.DEFAULT_SUBSCRIPTION_NAME,
+    durationDays: process.env.DEFAULT_SUBSCRIPTION_DAYS,
+  },
 }
 
 module.exports = config

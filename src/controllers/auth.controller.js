@@ -23,6 +23,7 @@ const userRepository = require('../repositories/user.repository');
 const sendOtpSms = require('../helpers/sendOtpSms');
 const companyController = require('./company.controller');
 const serviceController = require('./service.controller');
+const subscriptionController = require('./subscription.controller');
 
 module.exports = {
   sendOtpForMobileRegister: async (req, res, next) => {
@@ -98,7 +99,9 @@ module.exports = {
     // create/sign token by user id
     const token = jwt.sign({ user: user.id }, config.jwtSecret);
 
-    res.json({ statusCode: 200, message: successMessages.USER_REGISTERED, data: { ...user, company, token } });
+    const subscription = await subscriptionController.applyPlanToVerifiedUser(user);
+
+    res.json({ statusCode: 200, message: successMessages.USER_REGISTERED, data: { ...user, subscription, company, token } });
   },
   registerUserByEmail: async (req, res, next) => {
     const userInputBody = req.body.user;
@@ -154,7 +157,9 @@ module.exports = {
     // create/sign token by user id
     const token = jwt.sign({ user: user.id }, config.jwtSecret);
 
-    res.json({ statusCode: 200, message: successMessages.USER_REGISTERED, data: { ...user, company, token } });
+    const subscription = await subscriptionController.applyPlanToVerifiedUser(user);
+
+    res.json({ statusCode: 200, message: successMessages.USER_REGISTERED, data: { ...user, subscription, company, token } });
   },
   verifyMobileOtp: async (req, res, next) => {
     const { mobile, code } = req.body;

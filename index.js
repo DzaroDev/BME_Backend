@@ -10,6 +10,7 @@ const server = require('./src/server');
 
 // controllers
 const userController = require('./src/controllers/user.controller');
+const subscriptionController = require('./src/controllers/subscription.controller');
 
 // make bluebird default Promise
 Promise = require('bluebird'); // eslint-disable-line no-global-assign
@@ -39,6 +40,9 @@ mongoose
 
       // create default admin
       await userController.createDefaultAdmin();
+      
+      // create default admin
+      await subscriptionController.createDefaultSubscriptionPlan();
 
       // create default directories
       const imgDirPath = path.resolve(__dirname, './public/images');
