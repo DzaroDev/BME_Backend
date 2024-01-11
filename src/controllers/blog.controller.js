@@ -1,9 +1,13 @@
 const { isNumber, isString } = require('lodash');
+const path = require('path')
 const { userTypes, blogStatusLabels, blogStatus, adminUserTypes } = require('../constants');
 const { errorMessages, successMessages } = require('../constants/textVariables');
 const createError = require('../helpers/createError');
 const blogRepository = require('../repositories/blog.repository');
 const userRepository = require('../repositories/user.repository');
+const validateFileUpload = require('../helpers/validateFileUpload');
+const fileRepository = require('../repositories/file.repository');
+const getFileExtension = require('../helpers/getFileExtension');
 
 module.exports = {
   getBlogById: async (req, res, next) => {
@@ -41,7 +45,9 @@ module.exports = {
     return res.json({ statusCode: 200, data });
   },
   createBlog: async (req, res, next) => {
+    const imageFile = req.files?.heroBannerImg;
     const inputBody = req.body;
+    if (inputBody.status) inputBody.status = parseInt(inputBody.status);
     let authUser = req.auth.user;
 
     authUser = await userRepository.findUserByQuery({ _id: authUser });
@@ -71,11 +77,58 @@ module.exports = {
     // delete unnecessary properties
     delete blog.statusLogs;
 
-    return res.json({ statusCode: 200, data: blog });
+    // file upload
+    if (imageFile) {
+      const fileValidationRes = validateFileUpload(imageFile, true);
+
+      if (fileValidationRes) {
+        return next(createError(400, fileValidationRes));
+      }
+
+      let fileData = await fileRepository.saveFile({
+        relatedEntity: blogRepository.getModelName(),
+        relatedEntityId: blog.id,
+        originalName: imageFile.name,
+        mimeType: imageFile.mimetype,
+        size: imageFile.size,
+      });
+      
+      const fileName = fileData.id + getFileExtension(fileData.originalName);
+      const filePath = path.join(__dirname, '../../public/images', fileName);
+
+      imageFile.mv(filePath, async function(err) {
+        if (err) {
+          fileData = await fileRepository.findAndRemoveFileById(fileData.id);
+          return next(err);
+        }
+  
+        const imageUrl = fileData.imageUrl(req);
+  
+        // convert to JSON and add 'imageUrl' into it
+        fileData = fileData.toJSON();
+        fileData.imageUrl = imageUrl;
+
+        const images = [
+          {
+            id: 'heroBannerImg',
+            imageUrl,
+          }
+        ]
+  
+        // add blog's hero banner image
+        blog = await blogRepository.findAndUpdateBlogById(blog.id, { images });
+        res.json({ statusCode: 200, data: blog });
+      });
+      return;
+    }
+    res.json({ statusCode: 200, data: blog });
   },
   updateBlog: async (req, res, next) => {
     const blogId = req.params.blogId;
+    const imageFile = req.files?.heroBannerImg;
     const inputBody = req.body;
+
+    if (inputBody.status) inputBody.status = parseInt(inputBody.status);
 
     let blog = await blogRepository.findBlogById(blogId);
 
@@ -85,6 +138,50 @@ module.exports = {
     
     blog = await blogRepository.findAndUpdateBlogById(blogId, inputBody);
 
+    // file upload
+    if (imageFile) {
+      const fileValidationRes = validateFileUpload(imageFile, true);
+
+      if (fileValidationRes) {
+        return next(createError(400, fileValidationRes));
+      }
+
+      let fileData = await fileRepository.saveFile({
+        relatedEntity: blogRepository.getModelName(),
+        relatedEntityId: blog.id,
+        originalName: imageFile.name,
+        mimeType: imageFile.mimetype,
+        size: imageFile.size,
+      });
+      
+      const fileName = fileData.id + getFileExtension(fileData.originalName);
+      const filePath = path.join(__dirname, '../../public/images', fileName);
+
+      imageFile.mv(filePath, async function(err) {
+        if (err) {
+          fileData = await fileRepository.findAndRemoveFileById(fileData.id);
+          return next(err);
+        }
+  
+        const imageUrl = fileData.imageUrl(req);
+  
+        // convert to JSON and add 'imageUrl' into it
+        fileData = fileData.toJSON();
+        fileData.imageUrl = imageUrl;
+
+        const images = [
+          {
+            id: 'heroBannerImg',
+            imageUrl,
+          }
+        ]
+  
+        // update blog's hero banner image
+        blog = await blogRepository.findAndUpdateBlogById(blog.id, { images });
+        res.json({ statusCode: 200, data: blog });
+      });
+      return;
+    }
     return res.json({ statusCode: 200, data: blog });
   },
   deleteBlog: async (req, res, next) => {

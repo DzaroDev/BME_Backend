@@ -13,6 +13,7 @@ const schema = {
       summaryText: Joi.string().required(),
       category: Joi.string().required(),
       status: Joi.number().positive().integer().required().valid(...blogStatusVals),
+      heroBannerImg: Joi.any().allow(null),
     }),
   },
   updateBlog: {
@@ -21,6 +22,7 @@ const schema = {
       mainText: Joi.string(),
       summaryText: Joi.string(),
       category: Joi.string(),
+      heroBannerImg: Joi.any().allow(null),
     }),
   },
   updateBlogStatus: {

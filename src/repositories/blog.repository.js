@@ -5,6 +5,9 @@ const blogModel = require('../models/blog.model');
 const populateAuthorQuery = { path: 'author', select: 'firstName lastName email' };
 
 module.exports = {
+  getModelName: () => {
+    return blogModel.modelName;
+  },
   saveBlog: async (blog) => {
     blog = new blogModel(blog);
     return await blog.save();
