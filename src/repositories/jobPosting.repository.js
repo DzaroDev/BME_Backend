@@ -41,4 +41,22 @@ module.exports = {
     jobPost = new jobPostModel(jobPost);
     return await jobPost.save();
   },
+  findAllJobPostsWithMinimalFields: async (query, pageOptions) => {
+    query = { ...query, isDeleted: false };
+    if (size(pageOptions) > 1) {
+      const {
+        pageNo = pageConfigs.DEFAULT_PAGE,
+        pageSize = pageConfigs.DEFAULT_PAGE_SIZE,
+        sortBy = pageConfigs.DEFAULT_SORT_KEY,
+        sortOrder = pageConfigs.DEFAULT_SORT_ORDER
+      } = pageOptions;
+      
+      return await jobPostModel.find(query)
+        .select('id jobTitle jobDescription')
+        .populate(populateJobPostedByQuery)
+        .limit(pageSize).skip((pageNo - 1) * pageSize)
+        .sort({ [sortBy]: sortOrder });
+    }
+    return await jobPostModel.find(query).populate(populateJobPostedByQuery);
+  },
 }
