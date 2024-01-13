@@ -28,6 +28,13 @@ const subscriptionController = require('./subscription.controller');
 module.exports = {
   sendOtpForMobileRegister: async (req, res, next) => {
     const mobile = req.body.mobile;
+
+    const user = await userRepository.findUserByQuery({ mobile });
+
+    if (user?.isVerified) {
+      return next(createError(400, errorMessages.USER_ALREADY_VERIFIED));
+    }
+
     // generate random OTP code
     const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
@@ -39,9 +46,9 @@ module.exports = {
     });
 
     // send sms for OTP
-    if (config.env !== 'development') {
-      sendOtpSms({ mobile, otpCode })
-    }
+    // if (config.env !== 'development') {
+    //   sendOtpSms({ mobile, otpCode })
+    // }
 
     return res.json({ statusCode: 200, message: successMessages.MOBILE_OTP_SENT });
   },
@@ -71,7 +78,6 @@ module.exports = {
       ...(userInputBody || {}),
     };
     let company = null;
-    let companyService = null;
     let companyErrorMsg = null;
     let serviceErrorMsg = null;
 
@@ -91,7 +97,6 @@ module.exports = {
       serviceInputBody.companyId = company.id;
       await serviceController.createServiceWithRegisteredUser(newUser, serviceInputBody, async (err, data) => {
         if (err) serviceErrorMsg = err;
-        companyService = data;
       });
       if (serviceErrorMsg) return next(serviceErrorMsg);
     }
@@ -129,7 +134,6 @@ module.exports = {
       ...(userInputBody || {}),
     };
     let company = null;
-    let companyService = null;
     let companyErrorMsg = null;
     let serviceErrorMsg = null;
 
@@ -149,7 +153,6 @@ module.exports = {
       serviceInputBody.companyId = company.id;
       await serviceController.createServiceWithRegisteredUser(newUser, serviceInputBody, async (err, data) => {
         if (err) serviceErrorMsg = err;
-        companyService = data;
       });
       if (serviceErrorMsg) return next(serviceErrorMsg);
     }
@@ -194,6 +197,12 @@ module.exports = {
   },
   sendOtpForEmailRegister: async (req, res, next) => {
     const email = req.body.email;
+
+    const user = await userRepository.findUserByQuery({ email });
+
+    if (user?.isVerified) {
+      return next(createError(400, errorMessages.USER_ALREADY_VERIFIED));
+    }
 
     // generate random OTP code
     const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();

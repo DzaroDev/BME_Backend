@@ -6,20 +6,20 @@ const companySchema = require('../schema/company.schema');
 
 const router = express.Router();
 
-router.get('/:companyId', async (req, res, next) => {
-  try {
-    return await companyController.getCompanyById(req, res, next);
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.get('/list', async (req, res, next) => {
   try {
     const { value, error } = companySchema.listCompany.query.validate(req.query);
     if (error) return next(error);
     req.query = value;
     return await companyController.listAllCompanies(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:companyId', async (req, res, next) => {
+  try {
+    return await companyController.getCompanyById(req, res, next);
   } catch (error) {
     next(error);
   }

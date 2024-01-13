@@ -16,6 +16,7 @@ module.exports = {
       id: company?.id || '',
       name: company?.name || '',
       description: company?.description || '',
+      image: company?.logoImage || '',
     }))
 
     let blogList = await blogRepository.findAllBlogsWithMinimalFields({}, {
@@ -30,6 +31,7 @@ module.exports = {
       id: blog?.id || '',
       name: blog?.titleText || '',
       description: blog?.description || '',
+      image: blog?.images?.[0] || '',
     }))
 
     let jobPostList = await jobPostingRepository.findAllJobPostsWithMinimalFields({}, {
@@ -44,6 +46,7 @@ module.exports = {
       id: jobPost?.id || '',
       name: jobPost?.jobTitle || '',
       description: jobPost?.jobDescription || '',
+      image: '',
     }))
     
     return res.json({ statusCode: 200, data: { companyList, blogList, jobPostList } });

@@ -1,5 +1,6 @@
 const { Joi } = require('express-validation');
 const { companyUserTypes, nonCompanyUserTypes } = require('../constants');
+const { serviceSchema } = require('./user.schema');
 
 const companyTeamSchema = Joi.object({
   name: Joi.string().required().messages({ 'any.required': 'Member name is required' }),
@@ -79,6 +80,11 @@ const schema = {
           then: Joi.string().required(),
           otherwise: Joi.forbidden(),
         }),
+      service: Joi.when('userType', {
+        is: Joi.number().valid(...companyUserTypes),
+        then: Joi.object(serviceSchema).allow(null),
+        otherwise: Joi.forbidden(),
+      }),
     }).append(companySchema),
   },
 }

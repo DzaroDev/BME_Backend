@@ -10,6 +10,7 @@ const fileRepository = require('../repositories/file.repository');
 const memberRepository = require('../repositories/member.repository');
 const userRepository = require('../repositories/user.repository');
 const validateFileUpload = require('../helpers/validateFileUpload');
+const serviceController = require('./service.controller');
 
 module.exports = {
   createCompanyWithRegisteredUser: async (registeredUser, companyInputBody, callback = () => {}) => {
@@ -103,11 +104,11 @@ module.exports = {
       sortBy: req.query.sortBy,
       sortOrder: req.query.sortOrder,
     }
-    const companies = await companyRepository.findAllCompanies({ user: req.auth.user }, pagination);
+    const companies = await companyRepository.findAllCompanies({ /*user: req.auth.user*/ }, pagination);
     return res.json({ statusCode: 200, data: companies });
   },
   createStudentCompany: async (req, res, next) => {
-    const inputBody = req.body;
+    const { service: serviceInputBody, ...companyInputBody } = req.body;
     let authUser = req.auth.user;
 
     authUser = await userRepository.findUserByQuery({ _id: authUser });
@@ -119,41 +120,50 @@ module.exports = {
     let company = null;
 
     // check if company exists with registration Id
-    company = await companyRepository.findCompanyByQuery({ registrationId: inputBody.registrationId });
+    company = await companyRepository.findCompanyByQuery({ registrationId: companyInputBody.registrationId });
 
     if (company) {
       return next(createError(400, errorMessages.COMPANY_EXIST_WITH_REG_NUM));
     }
 
     // check if company exists with mobile/email
-    company = await companyRepository.findCompanyByQuery({ $or: [ { mobile: inputBody.mobile }, { email: inputBody.email } ] });
+    company = await companyRepository.findCompanyByQuery({ $or: [ { mobile: companyInputBody.mobile }, { email: companyInputBody.email } ] });
 
     if (company) {
       return next(createError(400, errorMessages.COMPANY_EXIST_WITH_MOBILE_EMAIL));
     }
 
     // assign user
-    inputBody.user = authUser.id;
+    companyInputBody.user = authUser.id;
 
     // save new company
-    company = await companyRepository.saveCompany(inputBody);
+    company = await companyRepository.saveCompany(companyInputBody);
     let companyMembers = null;
 
     // save company members
-    if (company.id && inputBody.members?.length > 0) {
-      companyMembers = await memberRepository.saveManyCompanyMember(company.id, inputBody.members);
+    if (company.id && companyInputBody.members?.length > 0) {
+      companyMembers = await memberRepository.saveManyCompanyMember(company.id, companyInputBody.members);
     }
 
     // save updated user
     authUser = await userRepository.findUserAndUpdate({
       id: authUser.id,
-      userType: inputBody.userType,
-      category: inputBody.category,
+      userType: companyInputBody.userType,
+      category: companyInputBody.category,
     });
 
     if (companyMembers) {
       company = company.toJSON();
       company.members = companyMembers;
+    }
+
+    let serviceErrorMsg = null
+    if (serviceInputBody) {
+      serviceInputBody.companyId = company.id;
+      await serviceController.createServiceWithRegisteredUser(authUser, serviceInputBody, async (err, data) => {
+        if (err) serviceErrorMsg = err;
+      });
+      if (serviceErrorMsg) return next(serviceErrorMsg);
     }
 
     return res.json({ statusCode: 200, data: { company, user: authUser } });

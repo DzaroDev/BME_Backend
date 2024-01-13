@@ -9,7 +9,7 @@ const errorMessages = {
   EMAIL_NOT_VERIFIED: 'Email is not verified.',
   USER_DOES_NOT_EXIST: 'User does not exist.',
   USER_ALREADY_EXIST: 'User already exist.',
-  USER_NOT_ALLOWED: 'User is not allowed.',
+  USER_NOT_ALLOWED: 'Already a company user.',
   INVALID_USER_PWD: 'Incorrect password.',
   USER_NOT_ACTIVE: 'Account de-activated. Please contact Admin.',
   USER_NOT_VERIFIED: 'User is not verified.',
@@ -29,6 +29,7 @@ const errorMessages = {
   INVALID_OBJECT_ID: 'Invalid ID was provided',
   JOB_POST_DOES_NOT_EXIST: 'Job post does not exist',
   PLAN_DOES_NOT_EXIST: 'Plan does not exist',
+  CREATE_COMPANY_NOT_ALLOWED: 'Selected profile is not allowed to create company.',
 }
 
 const successMessages = {

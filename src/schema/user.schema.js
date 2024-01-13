@@ -105,6 +105,7 @@ const serviceSchema = {
 }
 
 module.exports = {
+  serviceSchema,
   userProfile: {
     params: Joi.object({
       userId: Joi.string().required(),
@@ -173,8 +174,16 @@ module.exports = {
   registerUser: {
     body: Joi.object({
       user: userSchema,
-      company: Joi.object(companySchema).allow(null),
-      service: Joi.object(serviceSchema).allow(null),
+      company: Joi.when('user.userType', {
+        is: Joi.number().valid(...userTypes.companyUserTypes),
+        then: Joi.object(companySchema).allow(null),
+        otherwise: Joi.forbidden(),
+      }),
+      service: Joi.when('user.userType', {
+        is: Joi.number().valid(...userTypes.companyUserTypes),
+        then: Joi.object(serviceSchema).allow(null),
+        otherwise: Joi.forbidden(),
+      }),
     }),
   },
   updateUser: {
