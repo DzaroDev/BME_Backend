@@ -38,7 +38,7 @@ module.exports = {
     if (pagination) {
       const { pageNo, pageSize, sortBy, sortOrder } = pagination;
       output = await companyModel.find(query)
-        .select('id name description')
+        .select('id name description logoImage')
         .populate({
           path: 'user',
           select: 'id firstName lastName'

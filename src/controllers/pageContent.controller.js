@@ -8,7 +8,7 @@ module.exports = {
       pageNo: 1,
       pageSize: 5,
       sortBy: 'createdAt',
-      sortOrder: '1'
+      sortOrder: '-1'
     })
 
     // transformed company result
@@ -23,7 +23,7 @@ module.exports = {
       pageNo: 1,
       pageSize: 3,
       sortBy: 'createdAt',
-      sortOrder: '1'
+      sortOrder: '-1'
     })
 
     // transformed blogs result
@@ -31,14 +31,14 @@ module.exports = {
       id: blog?.id || '',
       name: blog?.titleText || '',
       description: blog?.description || '',
-      image: blog?.images?.[0] || '',
+      image: blog?.images?.[0]?.imageUrl || '',
     }))
 
     let jobPostList = await jobPostingRepository.findAllJobPostsWithMinimalFields({}, {
       pageNo: 1,
       pageSize: 4,
       sortBy: 'createdAt',
-      sortOrder: '1'
+      sortOrder: '-1'
     })
 
     // transformed job posts result

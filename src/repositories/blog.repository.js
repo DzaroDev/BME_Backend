@@ -50,7 +50,7 @@ module.exports = {
       } = pageOptions;
       
       return await blogModel.find(query)
-        .select('id titleText')
+        .select('id titleText images')
         .populate({
           path: 'author',
           select: 'firstName lastName'
