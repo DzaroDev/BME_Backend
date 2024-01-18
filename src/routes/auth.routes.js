@@ -23,6 +23,7 @@ const userSchema = require('../schema/user.schema');
 // helpers
 const createError = require('../helpers/createError');
 const companyRepository = require('../repositories/company.repository');
+const subscriptionController = require('../controllers/subscription.controller');
 
 // express router
 const router = express.Router();
@@ -60,8 +61,10 @@ router.post('/token', validateJoiSchema(userSchema.login), async (req, res, next
 
     // create/sign token by user id
     const token = jwt.sign({ user: user.id }, config.jwtSecret);
+
+    const subscription = await subscriptionController.getSubscriptionPlanForAuthUser(user);
     
-    res.json({ statusCode: 200, data: { ...user, company, token } });
+    res.json({ statusCode: 200, data: { ...user, company, subscription, token } });
   } catch (error) {
     next(error);
   }

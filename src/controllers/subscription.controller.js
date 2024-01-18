@@ -33,9 +33,15 @@ module.exports = {
       return next(createError(403, errorMessages.USER_NOT_AUTHORIZED));
     }
 
-    const plan = await subscriptionRepository.savePlan(inputBody);
+    let plan = await subscriptionRepository.findPlanByQuery({ name: { $regex : new RegExp(inputBody?.name, "i") } });
 
-    res.status(200).json({ message: successMessages.PLAN_CREATED, data: plan });
+    if (plan) {
+      return next(createError(400, errorMessages.PLAN_ALREADY_EXIST_WITH_NAME));
+    }
+
+    plan = await subscriptionRepository.savePlan(inputBody);
+
+    res.status(200).json({ statusCode: 200, data: plan });
   },
   updateSubscriptionPlan: async (req, res, next) => {
     const inputBody = req.body;
@@ -51,7 +57,7 @@ module.exports = {
     let plan = await subscriptionRepository.findPlanByQuery({ _id: planId })
 
     if (!plan) {
-      return next(createError(403, errorMessages.PLAN_DOES_NOT_EXIST));
+      return next(createError(400, errorMessages.PLAN_DOES_NOT_EXIST));
     }
 
     plan = await subscriptionRepository.updatePlanById(planId, inputBody);
@@ -61,14 +67,18 @@ module.exports = {
   getSubscriptionPlans: async (req, res, next) => {
     let authUser = req.auth.user;
     authUser = await userRepository.findUserByQuery({ _id: authUser });
+    let plans = []
 
-    if (!ADMIN_USER_TYPES.includes(authUser.userType)) {
-      return next(createError(403, errorMessages.USER_NOT_AUTHORIZED));
+    if (ADMIN_USER_TYPES.includes(authUser.userType)) {
+      plans = await subscriptionRepository.findAllPlans({});
+    } else {
+      plans = await subscriptionRepository.findAllPlans({ 
+        name: { $not: { $regex : new RegExp("Free Trial", "i") } },
+        isActive: true,
+      });
     }
 
-    const plans = await subscriptionRepository.findAllPlans({});
-
-    res.status(200).json({ data: plans });
+    res.status(200).json({ statusCode: 200, data: plans });
   },
   applyPlanToVerifiedUser: async (user) => {
     user = await userRepository.findUserByQuery({ _id: user.id });
@@ -89,4 +99,9 @@ module.exports = {
     // const { _id, user: u, ...rest } = subscription
     return subscription
   },
+  getSubscriptionPlanForAuthUser: async (user) => {
+    let plan = await subscriptionRepository.findUserPlanByQuery({ user: user.id })
+    if (!plan) return
+    return plan;
+  }
 }

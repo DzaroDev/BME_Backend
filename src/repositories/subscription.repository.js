@@ -31,4 +31,8 @@ module.exports = {
     subscription = new subscriptionModel(subscription);
     return await subscription.save();
   },
+  findUserPlanByQuery: async (query) => {
+    const output = await subscriptionModel.findOne(query).populate('subscriptionplan').exec();
+    return output;
+  },
 }

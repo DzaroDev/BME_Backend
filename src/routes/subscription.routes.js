@@ -6,7 +6,7 @@ const subscriptionSchema = require('../schema/subscription.schema');
 
 const router = express.Router();
 
-router.post('/create-plan', validateJoiSchema(subscriptionSchema.plan), async (req, res, next) => {
+router.post('/plan', validateJoiSchema(subscriptionSchema.plan), async (req, res, next) => {
   try {
     return await subscriptionController.createSubscriptionPlan(req, res, next);
   } catch (error) {
@@ -14,7 +14,7 @@ router.post('/create-plan', validateJoiSchema(subscriptionSchema.plan), async (r
   }
 });
 
-router.put('/update-plan/:planId', validateJoiSchema(subscriptionSchema.updatePlan), async (req, res, next) => {
+router.put('/plan/:planId', validateJoiSchema(subscriptionSchema.updatePlan), async (req, res, next) => {
   try {
     return await subscriptionController.updateSubscriptionPlan(req, res, next);
   } catch (error) {

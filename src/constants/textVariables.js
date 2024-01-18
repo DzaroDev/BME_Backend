@@ -29,7 +29,9 @@ const errorMessages = {
   INVALID_OBJECT_ID: 'Invalid ID was provided',
   JOB_POST_DOES_NOT_EXIST: 'Job post does not exist',
   PLAN_DOES_NOT_EXIST: 'Plan does not exist',
+  PLAN_ALREADY_EXIST_WITH_NAME: 'Plan already exist with the name',
   CREATE_COMPANY_NOT_ALLOWED: 'Selected profile is not allowed to create company.',
+  USER_NOT_SUBSCRIBED_TO_ANY_PLAN: 'User not subscribed to any plan',
 }
 
 const successMessages = {
