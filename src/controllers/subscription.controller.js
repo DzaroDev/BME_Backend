@@ -67,17 +67,18 @@ module.exports = {
   getSubscriptionPlans: async (req, res, next) => {
     let authUser = req.auth.user;
     authUser = await userRepository.findUserByQuery({ _id: authUser });
-    let plans = []
-
-    if (ADMIN_USER_TYPES.includes(authUser.userType)) {
+    let plans = [];
+    if (!authUser?.userType) {
+      return res.status(200).json({ statusCode: 200, data: plans });
+    }
+    if (ADMIN_USER_TYPES.includes(authUser?.userType)) {
       plans = await subscriptionRepository.findAllPlans({});
     } else {
       plans = await subscriptionRepository.findAllPlans({ 
-        name: { $not: { $regex : new RegExp("Free Trial", "i") } },
+        name: { $not: { $regex : new RegExp(config.subscription.name, "i") } },
         isActive: true,
       });
     }
-
     res.status(200).json({ statusCode: 200, data: plans });
   },
   applyPlanToVerifiedUser: async (user) => {
@@ -90,18 +91,28 @@ module.exports = {
       subscriptionStartedAt: new Date(),
       subscriptionExpiredAt: addDays(new Date(), defaultPlan.durationDays),
     })
-    // subscription = subscription.populate('plan')
-    // subscription.plan = subscription.plan.name
-    // subscription.description = subscription.plan.description
-    // subscription.price = subscription.plan.price
-    // subscription.durationDays = subscription.plan.durationDays
-    // subscription = subscription.toJSON()
-    // const { _id, user: u, ...rest } = subscription
+    subscription = await subscription.populate('plan')
+    subscription = {
+      name:  subscription.plan.name,
+      description:  subscription.plan.description,
+      price:  subscription.plan.price,
+      durationDays:  subscription.plan.durationDays,
+      startDate:  subscription.subscriptionStartedAt,
+      endDate:  subscription.subscriptionExpiredAt,
+    }
     return subscription
   },
   getSubscriptionPlanForAuthUser: async (user) => {
-    let plan = await subscriptionRepository.findUserPlanByQuery({ user: user.id })
-    if (!plan) return
-    return plan;
+    let subscription = await subscriptionRepository.findUserPlanByQuery({ user: user.id })
+    if (!subscription || !subscription?.plan) return;
+    subscription = {
+      name:  subscription.plan.name,
+      description:  subscription.plan.description,
+      price:  subscription.plan.price,
+      durationDays:  subscription.plan.durationDays,
+      startDate:  subscription.subscriptionStartedAt,
+      endDate:  subscription.subscriptionExpiredAt,
+    }
+    return subscription;
   }
 }

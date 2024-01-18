@@ -32,7 +32,7 @@ module.exports = {
     return await subscription.save();
   },
   findUserPlanByQuery: async (query) => {
-    const output = await subscriptionModel.findOne(query).populate('subscriptionplan').exec();
+    const output = await subscriptionModel.findOne(query).populate('plan').exec();
     return output;
   },
 }

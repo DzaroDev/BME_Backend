@@ -36,7 +36,7 @@ module.exports = {
     }
 
     // generate random OTP code
-    const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
+    const otpCode = process.env.DEFAULT_OTP // config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
     // save new otp
     const otpObj = await otpRepository.saveOtp({
@@ -205,7 +205,7 @@ module.exports = {
     }
 
     // generate random OTP code
-    const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
+    const otpCode = process.env.DEFAULT_OTP //config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
     // save new otp
     const otpObj = await otpRepository.saveOtp({
@@ -280,7 +280,7 @@ module.exports = {
     let otpObj = await otpRepository.findOtpByQuery(query);
 
     // generate random OTP code
-    const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
+    const otpCode = process.env.DEFAULT_OTP // config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
     if (otpObj) {
       // update the code
@@ -317,7 +317,7 @@ module.exports = {
     let otpObj = await otpRepository.findOtpByQuery(query);
 
     // generate random OTP code
-    const otpCode = config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
+    const otpCode = process.env.DEFAULT_OTP // config.env === 'development' ? process.env.DEFAULT_OTP : generateOtp();
 
     if (otpObj) {
       // update the code
