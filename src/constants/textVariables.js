@@ -32,6 +32,7 @@ const errorMessages = {
   PLAN_ALREADY_EXIST_WITH_NAME: 'Plan already exist with the name',
   CREATE_COMPANY_NOT_ALLOWED: 'Selected profile is not allowed to create company.',
   USER_NOT_SUBSCRIBED_TO_ANY_PLAN: 'User not subscribed to any plan',
+  POST_DOES_NOT_EXIST: 'Post does not exist',
 }
 
 const successMessages = {
