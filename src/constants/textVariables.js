@@ -33,6 +33,7 @@ const errorMessages = {
   CREATE_COMPANY_NOT_ALLOWED: 'Selected profile is not allowed to create company.',
   USER_NOT_SUBSCRIBED_TO_ANY_PLAN: 'User not subscribed to any plan',
   POST_DOES_NOT_EXIST: 'Post does not exist',
+  CAT_DOES_NOT_EXIST: 'Category does not exist',
 }
 
 const successMessages = {
@@ -48,6 +49,7 @@ const successMessages = {
   USER_REGISTERED: 'User registered successfully',
   PLAN_CREATED: 'Plan created successfully',
   PLAN_UPDATED: 'Plan updated successfully',
+  CAT_DELETED: 'Category deleted successfully',
 }
 
 module.exports = {

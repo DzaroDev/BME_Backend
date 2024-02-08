@@ -14,6 +14,7 @@ const jobPostingRoutes = require('./jobPosting.routes');
 const pageContentRoutes = require('./pageContent.routes');
 const subscriptionRoutes = require('./subscription.routes');
 const forumRoutes = require('./forum.routes')
+const categoryRoutes = require('./category.routes')
 const authRoutes = require('./auth.routes');
 
 const router = express.Router();
@@ -56,5 +57,6 @@ router.use('/job-posting', jobPostingRoutes);
 router.use('/page-content', pageContentRoutes);
 router.use('/subscription', subscriptionRoutes);
 router.use('/forum', forumRoutes);
+router.use('/category', categoryRoutes);
 
 module.exports = router;
