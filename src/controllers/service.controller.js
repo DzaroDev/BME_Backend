@@ -55,4 +55,14 @@ module.exports = {
     
     return res.json({ statusCode: 200, data: service });
   },
+  listAllServices: async (req, res, next) => {
+    const pagination = {
+      pageNo: req.query.pageNo,
+      pageSize: req.query.pageSize,
+      sortBy: req.query.sortBy,
+      sortOrder: req.query.sortOrder,
+    }
+    const services = await serviceRepository.findAll({ /*user: req.auth.user*/ }, pagination);
+    return res.json({ statusCode: 200, data: services });
+  },
 }

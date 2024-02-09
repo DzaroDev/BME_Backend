@@ -15,7 +15,7 @@ const schema = new mongoose.Schema({
 // schema virtuals
 schema.virtual('imageUrl').get(function() {
   return function(req) {
-    return `${req.protocol}://${req.get('host')}/api/files/${this.id}`;
+    return `https://${req.get('host')}/api/files/${this.id}`;
   };
 });
 

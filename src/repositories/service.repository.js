@@ -19,4 +19,18 @@ module.exports = {
     const output = await serviceModel.findByIdAndUpdate(serviceId, updateService, { new: true });
     return output;
   },
+  findAll: async (query, pagination) => {
+    query = { ...query, isDeleted: false, isActive: true };
+    let output = null;
+    if (pagination) {
+      const { pageNo, pageSize, sortBy, sortOrder } = pagination;
+      output = await serviceModel.find(query).populate('company', 'name')
+        .limit(pageSize)
+        .skip((pageNo - 1) * pageSize)
+        .sort({ [sortBy]: sortOrder });
+    } else {
+      output = await serviceModel.find(query);
+    }
+    return output;
+  },
 }

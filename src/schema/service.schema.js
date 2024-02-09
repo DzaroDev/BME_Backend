@@ -13,4 +13,12 @@ module.exports = {
       price: Joi.string().required(),
     }),
   },
+  list: {
+    query: Joi.object().keys({
+      pageNo: Joi.number().positive().integer().default(1),
+      pageSize: Joi.number().positive().integer().default(10),
+      sortBy: Joi.string().default('updatedAt'),
+      sortOrder: Joi.number().default(1).allow(1, -1),
+    }).allow(null),
+  },
 };
