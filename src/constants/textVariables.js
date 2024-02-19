@@ -15,7 +15,7 @@ const errorMessages = {
   USER_NOT_VERIFIED: 'User is not verified.',
   USER_ALREADY_VERIFIED: 'User is already verified.',
   INVALID_TOKEN: 'Invalid token was provided',
-  INVALID_USR_PROFILE: 'Invalid user profile',
+  INVALID_USR_PROFILE: 'Already a company profile type',
   COMPANY_EXIST_WITH_REG_NUM: 'Company already exist with registration number',
   COMPANY_EXIST_WITH_MOBILE_EMAIL: 'Company already exist with mobile or email',
   COMPANY_NOT_EXIST_WITH_ID: 'Company does not exist',

@@ -120,6 +120,10 @@ module.exports = {
     
     user = await userRepository.findUserByQuery({ _id: user });
 
+    if (!user) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
     if (!nonCompanyUserTypes.includes(user.userType)) {
       return next(createError(400, errorMessages.INVALID_USR_PROFILE));
     }
