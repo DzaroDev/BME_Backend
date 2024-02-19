@@ -42,7 +42,8 @@ router.use(
     },
   }).unless({ // bypass routes
     path: [
-      '/api/user/create'
+      '/api/user/create',
+      '/api/category/all',
     ]
   }),
 );
