@@ -114,6 +114,7 @@ module.exports = {
       profileType: Joi.number().valid(...userTypes.companyUserTypes).required().messages({
         'any.only': 'Invalid user profile'
       }),
+      category: Joi.string().required(),
     }),
   },
   login: {

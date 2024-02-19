@@ -116,6 +116,7 @@ module.exports = {
   },
   updateUserProfile: async (req, res, next) => {
     const userType = req.body.profileType;
+    const category = req.body.category;
     let user = req.params.userId;
     
     user = await userRepository.findUserByQuery({ _id: user });
@@ -128,8 +129,9 @@ module.exports = {
       return next(createError(400, errorMessages.INVALID_USR_PROFILE));
     }
     
-    // update user type
+    // update user type and category
     user.userType = userType;
+    user.category = category;
 
     // save user
     user = await userRepository.findUserAndUpdate(user);
