@@ -73,8 +73,8 @@ module.exports = {
   },
   jobPostingStatusUpdate: async (req, res, next) => {
     let authUser = req.auth.user;
-    const { jobPostStatus, jobPostId } = req.body;
-    let updateStatus = parseInt(jobPostStatus);
+    const { status, jobPostId } = req.body;
+    let updateStatus = parseInt(status);
 
     if (!mongoose.Types.ObjectId.isValid(jobPostId)) {
       return next(createError(400, errorMessages.INVALID_OBJECT_ID));

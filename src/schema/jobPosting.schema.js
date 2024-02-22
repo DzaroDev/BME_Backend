@@ -25,7 +25,7 @@ const schema = {
   jobPostingStatusUpdate: {
     body: Joi.object({
       jobPostId: Joi.string().required(),
-      jobPostStatus: Joi.number().positive().integer().valid(...jobPostingStatusVals),
+      status: Joi.number().positive().integer().valid(...jobPostingStatusVals),
     }),
   },
   listJobPostings: {
