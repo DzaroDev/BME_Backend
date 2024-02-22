@@ -1,6 +1,6 @@
 const { size } = require('lodash');
 const jobPostModel = require('../models/jobPosting.model');
-const { pageConfigs } = require('../constants');
+const { pageConfigs, jobPostingStatus } = require('../constants');
 
 const populateJobPostedByQuery = { path: 'jobPostedBy', select: 'firstName lastName email' };
 
@@ -42,7 +42,7 @@ module.exports = {
     return await jobPost.save();
   },
   findAllJobPostsWithMinimalFields: async (query, pageOptions) => {
-    query = { ...query, isDeleted: false };
+    query = { ...query, isDeleted: false, jobPostingStatus: jobPostingStatus.PUBLISHED };
     if (size(pageOptions) > 1) {
       const {
         pageNo = pageConfigs.DEFAULT_PAGE,

@@ -1,6 +1,6 @@
 const { isNumber, isString } = require('lodash');
 const mongoose = require('mongoose');
-const { companyUserTypes, nonCompanyUserTypes, jobPostingStatus } = require('../constants');
+const { companyUserTypes, nonCompanyUserTypes, jobPostingStatus, userTypes, adminUserTypes } = require('../constants');
 const { errorMessages } = require('../constants/textVariables');
 const createError = require('../helpers/createError');
 const blogRepository = require('../repositories/blog.repository');
@@ -88,7 +88,7 @@ module.exports = {
     }
 
     // check if user type is valid
-    if (![...companyUserTypes, ...nonCompanyUserTypes].includes(authUser.userType)) {
+    if (![userTypes.ADMIN, ...adminUserTypes].includes(authUser.userType)) {
       return next(createError(403, errorMessages.USER_NOT_AUTHORIZED));
     }
 
@@ -100,6 +100,7 @@ module.exports = {
     
     if (
       jobPost.jobPostingStatus === jobPostingStatus.CREATED && updateStatus === jobPostingStatus.PUBLISHED ||
+      jobPost.jobPostingStatus === jobPostingStatus.CREATED && updateStatus === jobPostingStatus.UNPUBLISHED ||
       jobPost.jobPostingStatus === jobPostingStatus.PUBLISHED && updateStatus === jobPostingStatus.UNPUBLISHED ||
       jobPost.jobPostingStatus === jobPostingStatus.UNPUBLISHED && updateStatus === jobPostingStatus.PUBLISHED
     ) {
@@ -107,10 +108,8 @@ module.exports = {
       // update new status
       updateJobPost.jobPostingStatus = updateStatus;
       jobPost = await jobPostingRepository.updateOneJobPosting(jobPostId, updateJobPost);
-
       return res.json({ statusCode: 200, data: jobPost });
     }
-
     // return error response
     return next(createError(400, errorMessages.INVALID_STATUS));
   },
