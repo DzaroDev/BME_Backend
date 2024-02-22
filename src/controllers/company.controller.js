@@ -332,6 +332,7 @@ module.exports = {
     }
     
     if (
+      company.status === undefined && updateStatus === companyStatus.CREATED ||
       company.status === companyStatus.CREATED && updateStatus === companyStatus.APPROVED ||
       company.status === companyStatus.CREATED && updateStatus === companyStatus.REJECTED ||
       company.status === companyStatus.REJECTED && updateStatus === companyStatus.APPROVED ||

@@ -26,6 +26,10 @@ module.exports = {
     if (pagination) {
       const { pageNo, pageSize, sortBy, sortOrder } = pagination;
       output = await companyModel.find(query)
+        .populate({
+          path: 'user',
+          select: 'id firstName lastName'
+        })
         .limit(pageSize)
         .skip((pageNo - 1) * pageSize)
         .sort({ [sortBy]: sortOrder });
