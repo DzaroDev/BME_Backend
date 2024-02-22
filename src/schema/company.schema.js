@@ -1,5 +1,5 @@
 const { Joi } = require('express-validation');
-const { companyUserTypes, nonCompanyUserTypes } = require('../constants');
+const { companyUserTypes, nonCompanyUserTypes, companyStatus } = require('../constants');
 const { serviceSchema } = require('./user.schema');
 
 const companyTeamSchema = Joi.object({
@@ -15,6 +15,8 @@ const companyTeamSchema = Joi.object({
     )
     .allow(null),
 });
+
+const companyStatusVals = Object.values(companyStatus);
 
 const companySchema = {
   name: Joi.string().required(),
@@ -51,6 +53,12 @@ const updateCompanySchema = {
 const schema = {
   company: {
     body: Joi.object(companySchema),
+  },
+  updateCompanyStatus: {
+    body: Joi.object({
+      companyId: Joi.string().required(),
+      status: Joi.number().positive().integer().required().valid(...companyStatusVals),
+    }),
   },
   updateCompany: {
     body: Joi.object(updateCompanySchema),

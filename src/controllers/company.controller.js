@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { companyUserTypes, nonCompanyUserTypes } = require('../constants');
+const { companyUserTypes, nonCompanyUserTypes, adminUserTypes, userTypes, companyStatus } = require('../constants');
 const { errorMessages, successMessages } = require('../constants/textVariables');
 const createError = require('../helpers/createError');
 const getFileExtension = require('../helpers/getFileExtension');
@@ -59,6 +59,11 @@ module.exports = {
 
     authUser = await userRepository.findUserByQuery({ _id: authUser });
 
+    // check if user exists
+    if (!authUser) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
     if (!companyUserTypes.includes(authUser.userType)) {
       return next(createError(400, errorMessages.USER_NOT_ALLOWED));
     }
@@ -112,6 +117,11 @@ module.exports = {
     let authUser = req.auth.user;
 
     authUser = await userRepository.findUserByQuery({ _id: authUser });
+
+    // check if user exists
+    if (!authUser) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
 
     if (!nonCompanyUserTypes.includes(authUser.userType)) {
       return next(createError(400, errorMessages.USER_NOT_ALLOWED));
@@ -298,5 +308,40 @@ module.exports = {
 
       return res.json({ statusCode: 200, message: successMessages.FILE_UPLOADED });
     });
+  },
+  updateCompanyStatus: async (req, res, next) => {
+    let authUser = req.auth.user;
+    const { status, companyId } = req.body;
+    const updateStatus = parseInt(status);
+
+    authUser = await userRepository.findUserByQuery({ _id: authUser });
+
+    // check if user exists
+    if (!authUser) {
+      return next(createError(400, errorMessages.USER_DOES_NOT_EXIST));
+    }
+
+    if (![userTypes.ADMIN, ...adminUserTypes].includes(authUser.userType)) {
+      return next(createError(403, errorMessages.USER_NOT_AUTHORIZED));
+    }
+
+    let company = await companyRepository.findCompanyById(companyId);
+
+    if (!company) {
+      return next(createError(400, errorMessages.COMPANY_NOT_EXIST_WITH_ID));
+    }
+    
+    if (
+      company.status === companyStatus.CREATED && updateStatus === companyStatus.APPROVED ||
+      company.status === companyStatus.CREATED && updateStatus === companyStatus.REJECTED ||
+      company.status === companyStatus.REJECTED && updateStatus === companyStatus.APPROVED ||
+      company.status === companyStatus.APPROVED && updateStatus === companyStatus.REJECTED
+    ) {
+      const updateCompany = { status: updateStatus };
+      company = await companyRepository.updateCompany(companyId, updateCompany);
+      return res.json({ statusCode: 200, data: company });
+    }
+    // return error if invalid status
+    return next(createError(400, errorMessages.INVALID_STATUS));
   },
 }

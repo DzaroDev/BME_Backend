@@ -73,6 +73,12 @@ const jobPostingStatus = {
   UNPUBLISHED: 3,
 }
 
+const companyStatus = {
+  CREATED: 1,
+  APPROVED: 2,
+  REJECTED: 3,
+}
+
 module.exports = {
   userTypes,
   companyUserTypes,
@@ -85,4 +91,5 @@ module.exports = {
   sortOrder,
   pageConfigs,
   jobPostingStatus,
+  companyStatus,
 }

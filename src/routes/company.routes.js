@@ -25,6 +25,14 @@ router.get('/:companyId', async (req, res, next) => {
   }
 });
 
+router.post('/status-update', validateJoiSchema(companySchema.updateCompanyStatus), async (req, res, next) => {
+  try {
+    return await companyController.updateCompanyStatus(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/', validateJoiSchema(companySchema.company), async (req, res, next) => {
   try {
     return await companyController.createCompany(req, res, next);

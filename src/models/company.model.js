@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { companyStatus } = require('../constants');
 
 const schema = new mongoose.Schema({
   name: { type: String },
@@ -15,6 +16,7 @@ const schema = new mongoose.Schema({
   brochureLink: { type: String },
   biomedicalExpertise: { type: String },
   documents: { type: Array },
+  status: { type: Number, enums: Object.values(companyStatus) },
   isActive: { type: Boolean, default: false },
   isDeleted: { type: Boolean, default: false },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },

@@ -1,3 +1,4 @@
+const { companyStatus } = require('../constants');
 const companyModel = require('../models/company.model');
 
 module.exports = {
@@ -7,6 +8,7 @@ module.exports = {
   saveCompany: async (company) => {
     // active by default
     company.isActive = true;
+    company.status = companyStatus.CREATED;
     company = new companyModel(company);
     return await company.save();
   },
@@ -33,7 +35,7 @@ module.exports = {
     return output;
   },
   findAllCompaniesWithMinimalFields: async (query, pagination) => {
-    query = { ...query, isDeleted: false, isActive: true };
+    query = { ...query, isDeleted: false, isActive: true, status: companyStatus.APPROVED };
     let output = null;
     if (pagination) {
       const { pageNo, pageSize, sortBy, sortOrder } = pagination;
