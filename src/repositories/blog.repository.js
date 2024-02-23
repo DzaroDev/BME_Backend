@@ -1,5 +1,5 @@
 const { size } = require('lodash');
-const { pageConfigs } = require('../constants');
+const { pageConfigs, blogStatus } = require('../constants');
 const blogModel = require('../models/blog.model');
 
 const populateAuthorQuery = { path: 'author', select: 'firstName lastName email' };
@@ -40,7 +40,7 @@ module.exports = {
     return await blogModel.find(query, '-statusLogs').populate(populateAuthorQuery);
   },
   findAllBlogsWithMinimalFields: async (query, pageOptions) => {
-    query = { ...query, isDeleted: false };
+    query = { ...query, status: blogStatus.PUBLISHED, isDeleted: false };
     if (size(pageOptions) > 1) {
       const {
         pageNo = pageConfigs.DEFAULT_PAGE,
